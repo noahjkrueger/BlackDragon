@@ -1,0 +1,128 @@
+.clan-information-wrapper {
+    margin: auto;
+    padding-left: 5vw;
+    display: flex;
+    color: #fff;
+    background-color: #000;
+    font-weight: 600;
+    font-family:'Courier New', Courier, monospace;
+    padding-bottom: 1vh;
+}
+
+.clan-information-col-big {
+    flex: 6;
+}
+
+.clan-information-col-sm{
+    flex: 1;
+}
+
+.dragon-section-bottom {
+    background-color: #000;
+}
+
+.dragon-section-bottom img {
+    display: block;
+    width: 20vw;
+    margin: auto;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+}
+
+.dragon-section-top {
+    background-color: #000;
+}
+
+.dragon-section-top img {
+    display: block;
+    width: 90vw;
+    margin: auto;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+}
+
+footer {
+    width: 100vw;
+    background-color: #222;
+    color: #e8e8e8;
+    text-align: center;
+    padding: 1vh;
+}
+
+footer a {
+    text-decoration: none;
+    color: #ff0000;
+}
+
+html::-webkit-scrollbar {
+    display: none;
+}
+
+html {
+    margin: 0;
+    padding: 0;
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+    background-color: #000;
+}
+
+.member-list {
+    width: 94vw;
+    margin: auto;
+    border: 1px solid #700000;
+}
+
+.member-list-wrapper {
+    background-color: #000;
+    font-weight: 600;
+    padding-top: 1vh;
+    padding-bottom: 1vh;
+    margin: auto;
+    font-family:'Courier New', Courier, monospace;
+}
+
+.member-list-wrapper caption {
+    color: #eee;
+}
+
+.tag-link {
+    font-size: 75%;
+    font-weight: 100;
+    color: #ff0000;
+}
+
+td button {
+    margin-right: 0.25vw;
+}
+
+.th-med {
+    width: 18%;
+}
+
+.th-short {
+    width: 8%;
+}
+
+.th-long {
+    width: 55%;
+}
+
+@media (max-width: 800px) {
+    .clan-information-wrapper {
+      flex-direction: column;
+    }
+
+    .clan-information-col-big {
+        padding-top: 2vh;
+    }
+
+    .clan-information-col-sm {
+        padding-top: 2vh;
+    }
+  }
