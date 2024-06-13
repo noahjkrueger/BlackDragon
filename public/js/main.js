@@ -30,12 +30,12 @@ function generateBadge(iconclasses, iconcolor, buttonvariant, tooltiptext) {
     return badge;
 }
 
-function createStackedMedalBar(medals, decks, donos, mMedals, mDonos) {
+function createStackedMedalBar(medals, decks, donos, mMedals, mDonos, warWeekDay) {
     var stacked = document.createElement("div");
     stacked.classList.add("progress-stacked");
-    stacked.appendChild(createMedalBar(medals, "text-bg-warning", mMedals, "Weekly War Medals: " + medals, 0.6));
-    stacked.appendChild(createMedalBar(decks, "text-bg-primary", 16, "Weekly War Decks: " + decks, 0.2));
-    stacked.appendChild(createMedalBar(donos, "text-bg-success", mDonos, "Weekly Donations: " + donos, 0.2));
+    stacked.appendChild(createMedalBar(decks, "text-bg-primary", 4 * warWeekDay, "Weekly War Decks: " + decks, 0.15));
+    stacked.appendChild(createMedalBar(medals, "text-bg-danger", mMedals, "Weekly War Medals: " + medals, 0.6));
+    stacked.appendChild(createMedalBar(donos, "text-bg-success", mDonos, "Weekly Donations: " + donos, 0.25));
     return stacked;
 }
 
@@ -133,7 +133,7 @@ async function initData() {
         //add role badge
         switch(value["role"]) {
             case "leader":
-                datapoint.appendChild(generateBadge(["fa-solid", "fa-chess-king"], "", "btn-outline-light", "Crowned Dragon (Leader)"));
+                datapoint.appendChild(generateBadge(["fa-solid", "fa-chess-king"], "", "btn-light", "Crowned Dragon (Leader)"));
                 break;
             case "coLeader":
                 datapoint.appendChild(generateBadge(["fa-solid", "fa-fire"], "", "btn-outline-warning", "Ancient Dragon (Co-Leader)"));
@@ -167,7 +167,7 @@ async function initData() {
 
         //CR vet by xp level
         if(value["expLevel"] >= 55) {
-            datapoint.appendChild(generateBadge(["fa-solid", "fa-hourglass"], "", "btn-outline-primary", "Level 55+"));
+            datapoint.appendChild(generateBadge(["fa-solid", "fa-clock"], "", "btn-outline-primary", "Level 55+"));
         }
 
         //donations
@@ -203,20 +203,20 @@ async function initData() {
     //top medals
     for (var id of topMedals) {
         var badgetd = document.getElementById("badges"+id);
-        badgetd.appendChild(generateBadge(["fa-solid", "fa-weight-hanging"], "", "btn-warning", "#1 War Medal Earner: " + topMedal + " medals!"));
+        badgetd.appendChild(generateBadge(["fa-solid", "fa-hand-fist"], "", "btn-danger", "#1 War Medal Earner: " + topMedal + " medals!"));
         // badgetd.parentElement.classList.add("table-warning");
     }
 
     //top donos
     for (var id of topDonors) {
         var badgetd = document.getElementById("badges"+id);
-        badgetd.appendChild(generateBadge(["fa-solid", "fa-weight-hanging"], "", "btn-success", "#1 Donor: " + topDono + " donations!"));
+        badgetd.appendChild(generateBadge(["fa-solid", "fa-hand-holding-medical"], "", "btn-success", "#1 Donor: " + topDono + " donations!"));
         // badgetd.parentElement.classList.add("table-success");
     }
 
     //create medal bars
     for (const [key, value] of Object.entries(data["memberList"])) {
-        var stackedBars = createStackedMedalBar(value["warData"]["fame"], value["warData"]["decksUsed"], value["donations"], topMedal, topDono);
+        var stackedBars = createStackedMedalBar(value["warData"]["fame"], value["warData"]["decksUsed"], value["donations"], topMedal, topDono, data["weekWarDay"]);
         document.getElementById("participation" + key).appendChild(stackedBars);
     }
 }

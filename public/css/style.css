@@ -73,7 +73,7 @@ html {
 }
 
 .member-list {
-    width: 94vw;
+    width: 96vw;
     margin: auto;
     border: 1px solid #700000;
 }
@@ -81,8 +81,7 @@ html {
 .member-list-wrapper {
     background-color: #000;
     font-weight: 600;
-    padding-top: 1vh;
-    padding-bottom: 1vh;
+    padding: 1vw;
     margin: auto;
     font-family:'Courier New', Courier, monospace;
 }
@@ -101,16 +100,16 @@ td button {
     margin-right: 0.25vw;
 }
 
-.th-med {
-    width: 18%;
+.responsive-div-med {
+    width: 19vw;
 }
 
-.th-short {
-    width: 8%;
+.responsive-div-short {
+    width: 8vw;
 }
 
-.th-long {
-    width: 55%;
+.responsive-div-long {
+    width: 50vw;
 }
 
 @media (max-width: 800px) {
@@ -125,16 +124,22 @@ td button {
     .clan-information-col-sm {
         padding-top: 2vh;
     }
-    .th-med {
-        width: 18%;
+
+    .responsive-div-med {
+        width: 50vw;
     }
     
-    .th-short {
-        width: 8%;
+    .responsive-div-short {
+        width: 25vw;
     }
     
-    .th-long {
-        width: 100vw;
+    .responsive-div-long {
+        width: 90vw;
+    }
+
+    td button {
+        margin-right: 0.5vw;
+        margin-bottom: 0.5vw;
     }
     
   }

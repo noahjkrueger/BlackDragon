@@ -62,6 +62,10 @@ async function fiveMinJobFunc() {
 
   //add reordered member information to parsedData
   parsedData["memberList"] = clanMembers;
+
+  //for figuring out which weekly war day it is (1, 2, 3, 4)
+  parsedData["weekWarDay"] = Math.max(0, (warData["periodIndex"] % 7) - 2);
+
   //write to file
   fs.writeFileSync('public/data/parsed_data.json', JSON.stringify(parsedData));
 }
