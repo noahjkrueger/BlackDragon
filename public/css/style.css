@@ -125,4 +125,16 @@ td button {
     .clan-information-col-sm {
         padding-top: 2vh;
     }
+    .th-med {
+        width: 18%;
+    }
+    
+    .th-short {
+        width: 8%;
+    }
+    
+    .th-long {
+        width: 100vw;
+    }
+    
   }

@@ -75,7 +75,7 @@ var weekJob = new CronJob(
 );
 
 async function week_update() {
-  console.log("test");
+  console.log("week test");
 }
 
 //API query funciton
@@ -134,3 +134,6 @@ async function update_war_data() {
   };
   return data;
 }
+
+//run job on app startup - workaround application host spin-down issue.
+fiveMinJobFunc();

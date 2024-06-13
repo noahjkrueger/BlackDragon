@@ -33,14 +33,14 @@ function generateBadge(iconclasses, iconcolor, buttonvariant, tooltiptext) {
 function createStackedMedalBar(medals, decks, donos, mMedals, mDonos) {
     var stacked = document.createElement("div");
     stacked.classList.add("progress-stacked");
-    stacked.appendChild(createMedalBar(medals, "text-bg-warning", mMedals, "Weekly War Medals: " + medals));
-    stacked.appendChild(createMedalBar(decks, "text-bg-primary", 16, "Weekly War Decks: " + decks));
-    stacked.appendChild(createMedalBar(donos, "text-bg-success", mDonos, "Weekly Donations: " + donos));
+    stacked.appendChild(createMedalBar(medals, "text-bg-warning", mMedals, "Weekly War Medals: " + medals, 0.6));
+    stacked.appendChild(createMedalBar(decks, "text-bg-primary", 16, "Weekly War Decks: " + decks, 0.2));
+    stacked.appendChild(createMedalBar(donos, "text-bg-success", mDonos, "Weekly Donations: " + donos, 0.2));
     return stacked;
 }
 
 //medal bar
-function createMedalBar(value, style, max, description) {
+function createMedalBar(value, style, max, description, scalefactor) {
     var bar = document.createElement("div");
     bar.classList.add("progress-bar");
     bar.classList.add("progress-bar-striped");
@@ -55,7 +55,7 @@ function createMedalBar(value, style, max, description) {
     barwrap.setAttribute("aria-valuenow", value);
     barwrap.setAttribute("aria-valuemin", "0");
     barwrap.setAttribute("aria-valuemax", max);
-    barwrap.setAttribute("style", "width: " + Math.round(100 * value / max) + "%");
+    barwrap.setAttribute("style", "width: " + Math.round((100 * value /  max) * scalefactor) + "%");
 
     barwrap.setAttribute("data-bs-toggle", "tooltip");
     barwrap.setAttribute("data-bs-placement", "top");
