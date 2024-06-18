@@ -1,20 +1,31 @@
 .clan-information-wrapper {
     margin: auto;
-    padding-left: 5vw;
+    padding-left: 2vw;
     display: flex;
     color: #fff;
     background-color: #000;
     font-weight: 600;
     font-family:'Courier New', Courier, monospace;
-    padding-bottom: 1vh;
+}
+
+.clan-information-wrapper a {
+    cursor: pointer;
 }
 
 .clan-information-col-big {
-    flex: 6;
+    flex: 10;
+}
+
+.clan-information-col-med {
+    flex: 3;
 }
 
 .clan-information-col-sm{
     flex: 1;
+}
+
+.custom-ratio {
+    --bs-aspect-ratio: 200%;
 }
 
 .dragon-section-bottom {
@@ -72,6 +83,20 @@ html {
     background-color: #000;
 }
 
+.link-section {
+    width: max-content;
+    margin: auto;
+    display: flex;
+    margin: auto;
+}
+
+.link-section-wrapper {
+    background-color: #000;
+    padding-top: 1vh;
+    padding-bottom: 1vh;
+}
+
+
 .member-list {
     width: 96vw;
     margin: auto;
@@ -121,6 +146,10 @@ td button {
         padding-top: 2vh;
     }
 
+    .clan-information-col-med {
+        padding-top: 2vh;
+    }
+
     .clan-information-col-sm {
         padding-top: 2vh;
     }
@@ -140,6 +169,6 @@ td button {
     td button {
         margin-right: 0.5vw;
         margin-bottom: 0.5vw;
-    }
+    }    
     
   }

@@ -10,18 +10,52 @@
         <link href="/css/style.css" rel="stylesheet">
         <link rel="icon" type="image/png" sizes="32x32" href="./img/favicon/favicon-32x32.png">
     </head>
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="false">
+            <div class="toast-header">
+                <img src="img/dragon-logo-single.png" class="rounded me-2" style="width: 32px">
+                <strong class="me-auto"><a class="btn btn-light" href="https://discord.com/invite/SZzZuuFhVa" target="_blank"><i class="fa-brands fa-discord"></i> Join Our Discord!</a></strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+    <!-- Modal -->
+    <div class="modal fade" id="dragonsCreed" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg ">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5"><i class="fa-solid fa-scroll"></i> The Dragon's Creed</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="ratio custom-ratio">
+                        <iframe src="https://docs.google.com/document/d/e/2PACX-1vRdSWKnpL0OB7e4syQKjnEOXzthVafK45sCzoX55CHYPRqWTn-RNrfx1iro5q3OeE32oazqu4Oy8bPp/pub?embedded=true"></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <body>
-        <!-- <iframe src="https://docs.google.com/document/d/e/2PACX-1vRdSWKnpL0OB7e4syQKjnEOXzthVafK45sCzoX55CHYPRqWTn-RNrfx1iro5q3OeE32oazqu4Oy8bPp/pub?embedded=true"></iframe> -->
         <div class="dragon-section-top">
             <!-- Dragon logo -->
            <img src="img/dragon-logo-banner.png">
        </div>
         <main>
+            <div class="link-section-wrapper">
+                <div class="link-section">
+                    <
+
+                </div>
+            </div>
             <div class="clan-information-wrapper">
-                <div id="clan-score" class="clan-information-col-sm"></div>
+                <div id="clan-tag" class="clan-information-col-sm"></div>
                 <div id="clan-desc" class="clan-information-col-big"></div>
+                <div id="clan-score" class="clan-information-col-sm"></div>
                 <div id="clan-trophies" class="clan-information-col-sm"></div>
                 <div id="clan-donos" class="clan-information-col-sm"></div>
+                <div id="" class="clan-information-col-med">
+                    <a data-bs-toggle="modal" data-bs-target="#dragonsCreed"><i class="fa-solid fa-scroll"></i> The Dragon's Creed</a>
+                </div>
             </div>
             <div class="member-list-wrapper table-responsive">
                 <table class="table table-sm table-dark table-hover align-middle member-list">

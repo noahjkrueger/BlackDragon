@@ -33,9 +33,14 @@ function generateBadge(iconclasses, iconcolor, buttonvariant, tooltiptext) {
 function createStackedMedalBar(medals, decks, donos, mMedals, mDonos, warWeekDay) {
     var stacked = document.createElement("div");
     stacked.classList.add("progress-stacked");
-    stacked.appendChild(createMedalBar(decks, "text-bg-primary", 4 * warWeekDay, "Weekly War Decks: " + decks, 0.15));
-    stacked.appendChild(createMedalBar(medals, "text-bg-danger", mMedals, "Weekly War Medals: " + medals, 0.6));
-    stacked.appendChild(createMedalBar(donos, "text-bg-success", mDonos, "Weekly Donations: " + donos, 0.25));
+    if (warWeekDay > 0) {
+        stacked.appendChild(createMedalBar(decks, "text-bg-pimary", 4 * warWeekDay, "Weekly War Decks: " + decks, 0.15));
+        stacked.appendChild(createMedalBar(medals, "text-bg-danger", mMedals, "Weekly War Medals: " + medals, 0.6));
+        stacked.appendChild(createMedalBar(donos, "text-bg-success", mDonos, "Weekly Donations: " + donos, 0.25));
+    }
+    else {
+        stacked.appendChild(createMedalBar(donos, "text-bg-success", mDonos, "Weekly Donations: " + donos, 1));
+    }
     return stacked;
 }
 
@@ -55,7 +60,8 @@ function createMedalBar(value, style, max, description, scalefactor) {
     barwrap.setAttribute("aria-valuenow", value);
     barwrap.setAttribute("aria-valuemin", "0");
     barwrap.setAttribute("aria-valuemax", max);
-    barwrap.setAttribute("style", "width: " + Math.round((100 * value /  max) * scalefactor) + "%");
+    var scaleRatio = max === 0 ? 0 : Math.round((100 * value /  max) * scalefactor);
+    barwrap.setAttribute("style", "width: " + scaleRatio + "%");
 
     barwrap.setAttribute("data-bs-toggle", "tooltip");
     barwrap.setAttribute("data-bs-placement", "top");
@@ -76,9 +82,14 @@ async function initData() {
         return response.json();
     }).then((json) => data = json);
 
+    //Clan tag
+    var clantag = document.getElementById("clan-tag");
+    clantag.appendChild(getIcon(["fa-solid", "fa-hashtag"], "#ff0000"));
+    clantag.innerHTML += data["tag"].substring(1);
+
     //Update Clan information
     var clandesc = document.getElementById("clan-desc");
-    clandesc.appendChild(getIcon(["fa-solid", "fa-scroll"], "#fff"));
+    clandesc.appendChild(getIcon(["fa-solid", "fa-comment"], "#fff"));
     clandesc.innerHTML += data["description"];
 
     var clanscore = document.getElementById("clan-score");
@@ -147,14 +158,14 @@ async function initData() {
         }
 
         //Weekly medals recognition
-        if (value["warData"]["fame"] >= 1500) {
-            datapoint.appendChild(generateBadge(["fa-solid", "fa-dragon"], "#f59042", "btn", "1500+ Weekly Medals!"));
+        if (value["warData"]["fame"] >= 200) {
+            datapoint.appendChild(generateBadge(["fa-solid", "fa-dragon"], "#ff003e", "btn", "2000+ Weekly Medals!"));
         }
-        if (value["warData"]["fame"] >= 2000) {
-            datapoint.appendChild(generateBadge(["fa-solid", "fa-dragon"], "", "btn-outline-danger", "2000+ Weekly Medals!"));
-        } 
         if (value["warData"]["fame"] >= 2500) {
-            datapoint.appendChild(generateBadge(["fa-solid", "fa-dragon"], "", "btn-danger", "2500+ Weekly Medals!"));
+            datapoint.appendChild(generateBadge(["fa-solid", "fa-dragon"], "", "btn-outline-danger", "2500+ Weekly Medals!"));
+        } 
+        if (value["warData"]["fame"] >= 2750) {
+            datapoint.appendChild(generateBadge(["fa-solid", "fa-dragon"], "", "btn-danger", "2750+ Weekly Medals!"));
         }
 
         //check if top medalist
@@ -167,7 +178,7 @@ async function initData() {
 
         //CR vet by xp level
         if(value["expLevel"] >= 55) {
-            datapoint.appendChild(generateBadge(["fa-solid", "fa-clock"], "", "btn-outline-primary", "Level 55+"));
+            datapoint.appendChild(generateBadge(["fa-solid", "fa-clock"], "#00cff3", "btn", "Level 55+"));
         }
 
         //donations
@@ -189,7 +200,7 @@ async function initData() {
 
         //all daily war decks used badge
         if(value["warData"]["decksUsedToday"] == 4) {
-            datapoint.appendChild(generateBadge(["fa-solid", "fa-copy"], "", "btn-outline-info", "All decks used today! (Includes training days)"));
+            datapoint.appendChild(generateBadge(["fa-solid", "fa-copy"], "#0070ff", "btn", "All decks used today! (Includes training days)"));
         }
 
         datapoint.id = "badges" + key;
@@ -223,3 +234,5 @@ async function initData() {
 
 //Populate Data
 initData();
+//links popup
+bootstrap.Toast.getOrCreateInstance(document.getElementById('liveToast')).show();
