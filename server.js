@@ -39,9 +39,6 @@ async function fiveMinJobFunc() {
   var clanData = await update_clan_data();
   var warData = await update_war_data();
 
-  //write to file - COMMENTED OUT TO SAVE MEMORY
-  // fs.writeFileSync('public/data/clan_data.json', JSON.stringify(clanData));
-  // fs.writeFileSync('public/data/war_data.json', JSON.stringify(warData));
 
   //parse server-side to reduce load on client.
   //clanData is a better format, start from there (non-shallow copy)
@@ -70,20 +67,8 @@ async function fiveMinJobFunc() {
   fs.writeFileSync('public/data/parsed_data.json', JSON.stringify(parsedData));
 }
 
-var weekJob = new CronJob(
-  '0 6 * * MON',
-  week_update,
-  null,
-  true,
-  'America/New_York'
-);
-
-async function week_update() {
-  console.log("week test");
-}
 
 //API query funciton
-
 async function queryAPI(requestURL) {
   const response = await fetch(requestURL, {
     headers: {

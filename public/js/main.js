@@ -125,14 +125,6 @@ async function initData() {
         datapoint.id = "name" + key;
         entryRow.appendChild(datapoint);
 
-        //trophies col
-        datapoint = document.createElement("td");
-        icon = getIcon(["fa-solid", "fa-trophy"], "#ffe75c");
-        datapoint.appendChild(icon);
-        datapoint.innerHTML += " " + value["trophies"];
-        datapoint.id = "trophies" + key;
-        entryRow.appendChild(datapoint);
-
         //participation row
         datapoint = document.createElement("td");
         datapoint.id = "participation" + key;
@@ -158,14 +150,14 @@ async function initData() {
         }
 
         //Weekly medals recognition
-        if (value["warData"]["fame"] >= 200) {
+        if (value["warData"]["fame"] >= 2000) {
             datapoint.appendChild(generateBadge(["fa-solid", "fa-dragon"], "#ff003e", "btn", "2000+ Weekly Medals!"));
         }
         if (value["warData"]["fame"] >= 2500) {
             datapoint.appendChild(generateBadge(["fa-solid", "fa-dragon"], "", "btn-outline-danger", "2500+ Weekly Medals!"));
         } 
-        if (value["warData"]["fame"] >= 2750) {
-            datapoint.appendChild(generateBadge(["fa-solid", "fa-dragon"], "", "btn-danger", "2750+ Weekly Medals!"));
+        if (value["warData"]["fame"] >= 3000) {
+            datapoint.appendChild(generateBadge(["fa-solid", "fa-dragon"], "", "btn-danger", "3000+ Weekly Medals!"));
         }
 
         //check if top medalist
@@ -206,6 +198,14 @@ async function initData() {
         datapoint.id = "badges" + key;
         entryRow.appendChild(datapoint);
 
+        //trophies col
+        datapoint = document.createElement("td");
+        icon = getIcon(["fa-solid", "fa-trophy"], "#ffe75c");
+        datapoint.appendChild(icon);
+        datapoint.innerHTML += " " + value["trophies"];
+        datapoint.id = "trophies" + key;
+        entryRow.appendChild(datapoint);
+
         //append row to member list element
         document.getElementById("member-list").appendChild(entryRow);
         counter+=1;
@@ -215,14 +215,12 @@ async function initData() {
     for (var id of topMedals) {
         var badgetd = document.getElementById("badges"+id);
         badgetd.appendChild(generateBadge(["fa-solid", "fa-hand-fist"], "", "btn-danger", "#1 War Medal Earner: " + topMedal + " medals!"));
-        // badgetd.parentElement.classList.add("table-warning");
     }
 
     //top donos
     for (var id of topDonors) {
         var badgetd = document.getElementById("badges"+id);
         badgetd.appendChild(generateBadge(["fa-solid", "fa-hand-holding-medical"], "", "btn-success", "#1 Donor: " + topDono + " donations!"));
-        // badgetd.parentElement.classList.add("table-success");
     }
 
     //create medal bars
@@ -234,5 +232,6 @@ async function initData() {
 
 //Populate Data
 initData();
+
 //links popup
 bootstrap.Toast.getOrCreateInstance(document.getElementById('liveToast')).show();
