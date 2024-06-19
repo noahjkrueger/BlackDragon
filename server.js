@@ -19,7 +19,7 @@ app.get('/', (req, res, next) => {
 //start webapp
 const port = process.env.PORT || 8080;
 app.listen(port, () => {
-    console.log(`Listening on port ${port}!`)
+    process.stdout.write(`Listening on port ${port}!\n`)
 });
 
 //CronJobs
@@ -34,11 +34,18 @@ var fiveMinJob = new CronJob(
 );
 
 async function fiveMinJobFunc() {
-  console.log("Making API calls.");
+  process.stdout.write("Making API calls... ");
+  var clanData = null;
+  var warData = null;
   //get data
-  var clanData = await update_clan_data();
-  var warData = await update_war_data();
-
+  try {
+    clanData = await update_clan_data();
+    warData = await update_war_data();
+  } catch (e) {
+    process.stdout.write("\n" + e + "\n");
+    return;
+  }
+  process.stdout.write("\nOK!\n");
 
   //parse server-side to reduce load on client.
   //clanData is a better format, start from there (non-shallow copy)
@@ -57,8 +64,54 @@ async function fiveMinJobFunc() {
     } catch(e) {continue};
   }
 
+  //get top medal and donor list
+  var ctopDonations = 1; //no donos =/= top donor :(
+  var ctopMedals = 1; //no medals =/= top medalist
+  var topDonations = [];
+  var topMedals = [];
+  
+  for (const [key, value] of Object.entries(clanMembers)) {
+    //check if top medalist
+    var numMedals = value["warData"]["fame"];
+    if (numMedals > ctopMedals) {
+      topMedals = [key];
+      ctopMedals = numMedals;
+    } else if (numMedals === ctopMedals) {
+      topMedals.push(key);
+    }
+    //check if top donor
+    var numDonos = value["donations"];
+    if (numDonos > ctopDonations) {
+      topDonations = [key];
+      ctopDonations = numDonos;
+    } else if (numDonos === ctopDonations) {
+      topDonations.push(key);
+    }
+    //calc participation, must be congruent to client-side bar display.
+    clanMembers[key]["participation"] = (0.6 * numMedals) + (0.25 * numDonos) + (0.15 * value["warData"]["decksUsed"]);
+  }
+
   //add reordered member information to parsedData
   parsedData["memberList"] = clanMembers;
+
+  //add info to parsedData
+  parsedData["tops"] = {
+    "cDonations": ctopDonations,
+    "donors": topDonations,
+    "cMedals": ctopMedals,
+    "medalists": topMedals
+  }
+
+  //create different orderings for displayin data client-side
+  //add to parsed data. trophyOrder is the default order returned by API.
+  parsedData["ordering"] = {
+    "trophyOrder": Object.keys(clanMembers), 
+    "participationOrder": Object.keys(clanMembers).sort((a, b) => {
+      var av = clanMembers[a]["participation"];
+      var bv = clanMembers[b]["participation"]
+      return av < bv ? 1 : (av === bv ? 0 : -1);
+    })
+  };
 
   //for figuring out which weekly war day it is (1, 2, 3, 4)
   parsedData["weekWarDay"] = Math.max(0, (warData["periodIndex"] % 7) - 2);
@@ -80,22 +133,16 @@ async function queryAPI(requestURL) {
           break;
       case 400:
         throw new Error("API Request Error: Client provided incorrect parameters for the request.");
-        break;
       case 403:
         throw new Error("API Request Error: Access denied, either because of missing/incorrect credentials or used API token does not grant access to the requested resource.");
-        break;
       case 404:
         throw new Error("API Request Error: Resource was not found.");
-        break;
       case 429:
         throw new Error("API Request Error: Request was throttled, because amount of requests was above the threshold defined for the used API token.");
-        break;
       case 500:
         throw new Error("API Request Error: Unknown error happened when handling the request.");
-        break;
       case 503:
         throw new Error("API Request Error: Service is temprorarily unavailable because of maintenance.");
-        break;
   }
   var data = await response.json();
   return data;
