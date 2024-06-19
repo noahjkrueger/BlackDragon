@@ -73,14 +73,17 @@ function createMedalBar(value, style, max, description, scalefactor) {
 
 async function initData() {
     var data = null;
-
     //Get most recent parsed
-    //Possible Fetch Errors here (no handling)
-    await fetch('./data/parsed_data.json').then((response) => {
-        //Update Table Caption to reflect data modify date
-        document.getElementById("member-list-caption").innerText = `Last Updated: ${response["headers"].get("last-modified")}`;
-        return response.json();
-    }).then((json) => data = json);
+    try {
+        await fetch('./data/parsed_data.json').then((response) => {
+            //Update Table Caption to reflect data modify date
+            document.getElementById("member-list-caption").innerText = `Last Updated: ${response["headers"].get("last-modified")}`;
+            return response.json();
+        }).then((json) => data = json);
+    } catch (e) {
+        window.alert(e);
+        return;
+    }
 
     //Clan tag
     var clantag = document.getElementById("clan-tag");
@@ -104,18 +107,10 @@ async function initData() {
     clandono.appendChild(getIcon(["fa-solid", "fa-gift"], "#00a00d"));
     clandono.innerHTML += data["donationsPerWeek"];
 
-    //Iterate through the member list, API returns member list in order of trophies max->min
     var counter = 1;
 
-    //top donor
-    var topDonors = [];
-    var topDono = 1; //no donos, no rec
-
-    //top medalist
-    var topMedals = [];
-    var topMedal = 1; //no medals, no recognition
-
-    for (const [key, value] of Object.entries(data["memberList"])) {
+    for (const key of data["ordering"]["participationOrder"]) {
+        const value = data["memberList"][key];
         //create new row
         var entryRow = document.createElement("tr");
 
@@ -129,7 +124,6 @@ async function initData() {
         datapoint = document.createElement("td");
         datapoint.id = "participation" + key;
         entryRow.appendChild(datapoint);
-
 
         //badges
         datapoint = document.createElement("td");
@@ -160,14 +154,6 @@ async function initData() {
             datapoint.appendChild(generateBadge(["fa-solid", "fa-dragon"], "", "btn-danger", "3000+ Weekly Medals!"));
         }
 
-        //check if top medalist
-        if (value["warData"]["fame"] > topMedal) {
-            topMedals = [key];
-            topMedal = value["warData"]["fame"];
-        } else if(value["warData"]["fame"] === topMedal) {
-            topMedals.push(key);
-        }
-
         //CR vet by xp level
         if(value["expLevel"] >= 55) {
             datapoint.appendChild(generateBadge(["fa-solid", "fa-clock"], "#00cff3", "btn", "Level 55+"));
@@ -180,15 +166,6 @@ async function initData() {
         if (value["donations"] > 500) {
             datapoint.appendChild(generateBadge(["fa-solid", "fa-gift"], "", "btn-outline-success", "500+ Weekly Donations!"));
         } 
-
-        //check if top donor
-        if (value["donations"] > topDono) {
-            topDonors = [key];
-            topDono = value["donations"];
-            
-        } else if(value["donations"] === topDono) {
-            topDonors.push(key);
-        }
 
         //all daily war decks used badge
         if(value["warData"]["decksUsedToday"] == 4) {
@@ -208,24 +185,24 @@ async function initData() {
 
         //append row to member list element
         document.getElementById("member-list").appendChild(entryRow);
-        counter+=1;
+        counter += 1;
     }
 
     //top medals
-    for (var id of topMedals) {
+    for (var id of data["tops"]["medalists"]) {
         var badgetd = document.getElementById("badges"+id);
-        badgetd.appendChild(generateBadge(["fa-solid", "fa-hand-fist"], "", "btn-danger", "#1 War Medal Earner: " + topMedal + " medals!"));
+        badgetd.appendChild(generateBadge(["fa-solid", "fa-hand-fist"], "", "btn-danger", "#1 War Medal Earner: " + data["tops"]["cMedals"] + " medals!"));
     }
 
     //top donos
-    for (var id of topDonors) {
+    for (var id of data["tops"]["donors"]) {
         var badgetd = document.getElementById("badges"+id);
-        badgetd.appendChild(generateBadge(["fa-solid", "fa-hand-holding-medical"], "", "btn-success", "#1 Donor: " + topDono + " donations!"));
+        badgetd.appendChild(generateBadge(["fa-solid", "fa-hand-holding-medical"], "", "btn-success", "#1 Donor: " + data["tops"]["cDonations"] + " donations!"));
     }
 
     //create medal bars
     for (const [key, value] of Object.entries(data["memberList"])) {
-        var stackedBars = createStackedMedalBar(value["warData"]["fame"], value["warData"]["decksUsed"], value["donations"], topMedal, topDono, data["weekWarDay"]);
+        var stackedBars = createStackedMedalBar(value["warData"]["fame"], value["warData"]["decksUsed"], value["donations"], data["tops"]["cMedals"], data["tops"]["cDonations"], data["weekWarDay"]);
         document.getElementById("participation" + key).appendChild(stackedBars);
     }
 }
