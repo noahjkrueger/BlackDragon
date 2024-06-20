@@ -64,6 +64,9 @@ async function fiveMinJobFunc() {
     } catch(e) {continue};
   }
 
+  //for figuring out which weekly war day it is (1, 2, 3, 4)
+  parsedData["weekWarDay"] = Math.max(0, (warData["periodIndex"] % 7) - 2);
+
   //get top medal and donor list
   var ctopDonations = 1; //no donos =/= top donor :(
   var ctopMedals = 1; //no medals =/= top medalist
@@ -87,8 +90,12 @@ async function fiveMinJobFunc() {
     } else if (numDonos === ctopDonations) {
       topDonations.push(key);
     }
-    //calc participation, must be congruent to client-side bar display.
-    clanMembers[key]["participation"] = (0.6 * numMedals) + (0.25 * numDonos) + (0.15 * value["warData"]["decksUsed"]);
+    //weighted participation. must be congruent to client side bar display. factor in maxes during sort.
+    clanMembers[key]["wParticipation"] = {
+      "wMedals": 0.6 * numMedals,
+      "wDonos": 0.25 * numDonos,
+      "wDecks": parsedData["weekWarDay"] === 0 ? 0 : 0.15 * value["warData"]["decksUsed"] / (4 * parsedData["weekWarDay"])
+    };
   }
 
   //add reordered member information to parsedData
@@ -104,17 +111,17 @@ async function fiveMinJobFunc() {
 
   //create different orderings for displayin data client-side
   //add to parsed data. trophyOrder is the default order returned by API.
+  //part: factor in maximums
   parsedData["ordering"] = {
     "trophyOrder": Object.keys(clanMembers), 
     "participationOrder": Object.keys(clanMembers).sort((a, b) => {
-      var av = clanMembers[a]["participation"];
-      var bv = clanMembers[b]["participation"]
+      var pa = clanMembers[a]["wParticipation"];
+      var pb = clanMembers[b]["wParticipation"];
+      var av = (pa["wMedals"] / ctopMedals) + (pa["wDonos"] / ctopDonations) + pa["wDecks"];
+      var bv = (pb["wMedals"] / ctopMedals) + (pb["wDonos"] / ctopDonations) + pb["wDecks"];
       return av < bv ? 1 : (av === bv ? 0 : -1);
     })
   };
-
-  //for figuring out which weekly war day it is (1, 2, 3, 4)
-  parsedData["weekWarDay"] = Math.max(0, (warData["periodIndex"] % 7) - 2);
 
   //write to file
   fs.writeFileSync('public/data/parsed_data.json', JSON.stringify(parsedData));
