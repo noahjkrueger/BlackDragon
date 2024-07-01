@@ -74,9 +74,16 @@ async function fiveMinJobFunc() {
   var topMedals = [];
   
   for (const [key, value] of Object.entries(clanMembers)) {
+    console.log(value);
     //check if top medalist
-    var numMedals = value["warData"]["fame"];
-    if (numMedals > ctopMedals) {
+    var numMedals = 0;
+    try { 
+      numMedals = value["warData"]["fame"];
+    } catch (e) {
+      console.log(key + " must have just joined. no war data.");
+      value["warData"] = {"fame": 0};
+    }
+      if (numMedals > ctopMedals) {
       topMedals = [key];
       ctopMedals = numMedals;
     } else if (numMedals === ctopMedals) {
@@ -161,8 +168,7 @@ async function update_clan_data() {
   try {
     data = await queryAPI(`https://api.clashroyale.com/v1/clans/%23${process.env.CLAN_TAG}`);
   } catch (e) {
-    console.log(e);
-    return;
+      throw new Error(e);
   };
   return data;
 }
@@ -172,8 +178,7 @@ async function update_war_data() {
   try {
     data = await queryAPI(`https://api.clashroyale.com/v1/clans/%23${process.env.CLAN_TAG}/currentriverrace`);
   } catch (e) {
-    console.log(e);
-    return;
+    throw new Error(e);
   };
   return data;
 }
