@@ -74,14 +74,16 @@ async function fiveMinJobFunc() {
   var topMedals = [];
   
   for (const [key, value] of Object.entries(clanMembers)) {
-    console.log(value);
     //check if top medalist
     var numMedals = 0;
     try { 
       numMedals = value["warData"]["fame"];
     } catch (e) {
       console.log(key + " must have just joined. no war data.");
-      value["warData"] = {"fame": 0};
+      value["warData"] = {
+        "fame": 0,
+        "decksUsed": 0
+      };
     }
       if (numMedals > ctopMedals) {
       topMedals = [key];
