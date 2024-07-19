@@ -25,16 +25,20 @@ app.listen(port, () => {
 //CronJobs
 var CronJob = require('cron').CronJob;
 
+const meWeight = 0.6;
+const deWeight = 0.15;
+const doWeight = 0.25;
+
 var fiveMinJob = new CronJob(
   '*/5 * * * *',
-  fiveMinJobFunc,
+  parseDataFromAPI,
   null,
   true,
   "America/New_York"
 );
 
-async function fiveMinJobFunc() {
-  process.stdout.write("Making API calls... ");
+async function parseDataFromAPI() {
+  process.stdout.write("Making API calls\n");
   var clanData = null;
   var warData = null;
   //get data
@@ -42,10 +46,9 @@ async function fiveMinJobFunc() {
     clanData = await update_clan_data();
     warData = await update_war_data();
   } catch (e) {
-    process.stdout.write("\n" + e + "\n");
+    process.stdout.write(e + "\n");
     return;
   }
-  process.stdout.write("\nOK!\n");
 
   //parse server-side to reduce load on client.
   //clanData is a better format, start from there (non-shallow copy)
@@ -65,13 +68,22 @@ async function fiveMinJobFunc() {
   }
 
   //for figuring out which weekly war day it is (1, 2, 3, 4)
-  parsedData["weekWarDay"] = Math.max(0, (warData["periodIndex"] % 7) - 2);
+  const wwDay = Math.max(0, (warData["periodIndex"] % 7) - 2)
+  parsedData["weekWarDay"] = wwDay;
+
+  //easier access to member count
+  const numMembers = parsedData["members"];
 
   //get top medal and donor list
   var ctopDonations = 1; //no donos =/= top donor :(
   var ctopMedals = 1; //no medals =/= top medalist
   var topDonations = [];
   var topMedals = [];
+
+  //sums of all
+  var meSum= 0;
+  var doSum = 0;
+  var deSum = 0;
   
   for (const [key, value] of Object.entries(clanMembers)) {
     //check if top medalist
@@ -99,35 +111,54 @@ async function fiveMinJobFunc() {
     } else if (numDonos === ctopDonations) {
       topDonations.push(key);
     }
-    //weighted participation. must be congruent to client side bar display. factor in maxes during sort.
-    clanMembers[key]["wParticipation"] = {
-      "wMedals": 0.6 * numMedals,
-      "wDonos": 0.25 * numDonos,
-      "wDecks": parsedData["weekWarDay"] === 0 ? 0 : 0.15 * value["warData"]["decksUsed"] / (4 * parsedData["weekWarDay"])
+
+    var decksUsed = value["warData"]["decksUsed"];
+
+    //add stats to sums
+    meSum += numMedals;
+    doSum += numDonos;
+    deSum += decksUsed;
+
+    //participation
+    clanMembers[key]["participation"] = {
+      "medals": numMedals,
+      "donos": numDonos,
+      "decks": decksUsed,
+      "wMedals": meWeight * numMedals,
+      "wDonos": doWeight * numDonos,
+      "wDecks": wwDay === 0  ? 0 : deWeight * decksUsed / (4 * wwDay),
     };
   }
 
-  //add reordered member information to parsedData
+  //overwrite memberList with new list that contains all that information
   parsedData["memberList"] = clanMembers;
 
-  //add info to parsedData
-  parsedData["tops"] = {
-    "cDonations": ctopDonations,
-    "donors": topDonations,
-    "cMedals": ctopMedals,
-    "medalists": topMedals
+  //store  fun information
+  parsedData["partFactors"] = {
+    "doWeight": doWeight,
+    "meWeight": meWeight,
+    "deWeight": deWeight,
+    "doTop": ctopDonations,
+    "topDonors": topDonations,
+    "meTop": ctopMedals,
+    "topMedals": topMedals,
+    "meAvg": meSum / numMembers,
+    "doAvg": doSum / numMembers,
+    "deAvg": wwDay === 0 ? 0 : deSum / numMembers
   }
+
 
   //create different orderings for displayin data client-side
   //add to parsed data. trophyOrder is the default order returned by API.
   //part: factor in maximums
   parsedData["ordering"] = {
     "trophyOrder": Object.keys(clanMembers), 
-    "participationOrder": Object.keys(clanMembers).sort((a, b) => {
-      var pa = clanMembers[a]["wParticipation"];
-      var pb = clanMembers[b]["wParticipation"];
-      var av = (pa["wMedals"] / ctopMedals) + (pa["wDonos"] / ctopDonations) + pa["wDecks"];
-      var bv = (pb["wMedals"] / ctopMedals) + (pb["wDonos"] / ctopDonations) + pb["wDecks"];
+    "participationOrder": Object.keys(clanMembers).sort((m1, m2) => {
+      var a = clanMembers[m1]["participation"];
+      var b = clanMembers[m2]["participation"];
+      var av = (a["wMedals"] / ctopMedals) + (a["wDonos"] / ctopDonations) + (a["wDecks"]);
+      var bv = (b["wMedals"] / ctopMedals) + (b["wDonos"] / ctopDonations) + (b["wDecks"]);
+      // console.log(`${clanMembers[m1]["name"]} (${av}) ---- ${clanMembers[m2]["name"]} (${bv})`);
       return av < bv ? 1 : (av === bv ? 0 : -1);
     })
   };
@@ -186,4 +217,4 @@ async function update_war_data() {
 }
 
 //run job on app startup - workaround application host spin-down issue.
-fiveMinJobFunc();
+parseDataFromAPI();

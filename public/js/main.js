@@ -30,27 +30,27 @@ function generateBadge(iconclasses, iconcolor, buttonvariant, tooltiptext) {
     return badge;
 }
 
-function createStackedMedalBar(medals, decks, donos, mMedals, mDonos, warWeekDay) {
+function createStackedMedalBar(member, factors, wwd) {
     var stacked = document.createElement("div");
     stacked.classList.add("progress-stacked");
-    if (warWeekDay > 0) {
-        stacked.appendChild(createMedalBar(decks, "text-bg-pimary", 4 * warWeekDay, "Weekly War Decks: " + decks, 0.15));
-        stacked.appendChild(createMedalBar(medals, "text-bg-danger", mMedals, "Weekly War Medals: " + medals, 0.6));
-        stacked.appendChild(createMedalBar(donos, "text-bg-success", mDonos, "Weekly Donations: " + donos, 0.25));
+    if (wwd > 0) {
+        stacked.appendChild(createMedalBar(factors["deWeight"], 4 * wwd, member["participation"]["decks"], "text-bg-pimary", "Weekly War Decks: "));
+        stacked.appendChild(createMedalBar(factors["meWeight"], factors["meTop"], member["participation"]["medals"], "text-bg-danger", "Weekly War Medals: "));
+        stacked.appendChild(createMedalBar(factors["doWeight"], factors["doTop"], member["participation"]["donos"], "text-bg-success", "Weekly Donations: "));
     }
     else {
-        stacked.appendChild(createMedalBar(donos, "text-bg-success", mDonos, "Weekly Donations: " + donos, 1));
+        stacked.appendChild(createMedalBar(1, factors["doTop"], member["participation"]["donos"], "text-bg-success", "Weekly Donations: "));
     }
     return stacked;
 }
 
 //medal bar
-function createMedalBar(value, style, max, description, scalefactor) {
+function createMedalBar(weight, max, value, theme, predesc) {
     var bar = document.createElement("div");
     bar.classList.add("progress-bar");
     bar.classList.add("progress-bar-striped");
     bar.classList.add("progress-bar-animated");
-    bar.classList.add(style);
+    bar.classList.add(theme);
     bar.innerText = value;
 
     var barwrap = document.createElement("div");
@@ -60,12 +60,13 @@ function createMedalBar(value, style, max, description, scalefactor) {
     barwrap.setAttribute("aria-valuenow", value);
     barwrap.setAttribute("aria-valuemin", "0");
     barwrap.setAttribute("aria-valuemax", max);
-    var scaleRatio = max === 0 ? 0 : Math.round((100 * value /  max) * scalefactor);
+
+    var scaleRatio = max === 0 ? 0 : Math.round((100 * value /  max) * weight);
     barwrap.setAttribute("style", "width: " + scaleRatio + "%");
 
     barwrap.setAttribute("data-bs-toggle", "tooltip");
     barwrap.setAttribute("data-bs-placement", "top");
-    barwrap.setAttribute("data-bs-title", description);
+    barwrap.setAttribute("data-bs-title", `${predesc}${value}`);
     popoverList.push(new bootstrap.Tooltip(barwrap));
 
     return barwrap;
@@ -189,20 +190,20 @@ async function initData() {
     }
 
     //top medals
-    for (var id of data["tops"]["medalists"]) {
+    for (const id of data["partFactors"]["topMedals"]) {
         var badgetd = document.getElementById("badges"+id);
-        badgetd.appendChild(generateBadge(["fa-solid", "fa-hand-fist"], "", "btn-danger", "#1 War Medal Earner: " + data["tops"]["cMedals"] + " medals!"));
+        badgetd.appendChild(generateBadge(["fa-solid", "fa-hand-fist"], "", "btn-danger", "#1 War Medal Earner: " + data["partFactors"]["meTop"] + " medals!"));
     }
 
     //top donos
-    for (var id of data["tops"]["donors"]) {
+    for (const id of data["partFactors"]["topDonors"]) {
         var badgetd = document.getElementById("badges"+id);
-        badgetd.appendChild(generateBadge(["fa-solid", "fa-hand-holding-medical"], "", "btn-success", "#1 Donor: " + data["tops"]["cDonations"] + " donations!"));
+        badgetd.appendChild(generateBadge(["fa-solid", "fa-hand-holding-medical"], "", "btn-success", "#1 Donor: " + data["partFactors"]["doTop"] + " donations!"));
     }
 
     //create medal bars
     for (const [key, value] of Object.entries(data["memberList"])) {
-        var stackedBars = createStackedMedalBar(value["warData"]["fame"], value["warData"]["decksUsed"], value["donations"], data["tops"]["cMedals"], data["tops"]["cDonations"], data["weekWarDay"]);
+        var stackedBars = createStackedMedalBar(value, data["partFactors"], data["weekWarDay"]);
         document.getElementById("participation" + key).appendChild(stackedBars);
     }
 }
