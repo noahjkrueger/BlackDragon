@@ -1,3 +1,8 @@
+.average-td {
+    --bs-table-bg: #8b0000;
+    --bs-table-hover-bg: #8b0000;
+}
+
 .clan-information-wrapper {
     margin: auto;
     padding-left: 2vw;

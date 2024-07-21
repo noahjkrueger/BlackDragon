@@ -158,7 +158,6 @@ async function parseDataFromAPI() {
       var b = clanMembers[m2]["participation"];
       var av = (a["wMedals"] / ctopMedals) + (a["wDonos"] / ctopDonations) + (a["wDecks"]);
       var bv = (b["wMedals"] / ctopMedals) + (b["wDonos"] / ctopDonations) + (b["wDecks"]);
-      // console.log(`${clanMembers[m1]["name"]} (${av}) ---- ${clanMembers[m2]["name"]} (${bv})`);
       return av < bv ? 1 : (av === bv ? 0 : -1);
     })
   };

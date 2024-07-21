@@ -109,9 +109,43 @@ async function initData() {
     clandono.innerHTML += data["donationsPerWeek"];
 
     var counter = 1;
+    var bSetAvg = false;
 
     for (const key of data["ordering"]["participationOrder"]) {
         const value = data["memberList"][key];
+
+        //add average participation bar if member below avg
+        if (!bSetAvg) {
+            var p = value["participation"];
+            var f = data["partFactors"];
+            var pv = (p["wMedals"] / f["meTop"]) + (p["wDonos"] / f["doTop"]) + p["wDecks"];
+            var avg = (f["doWeight"] * f["doAvg"]) / f["doTop"] + (f["meWeight"] * f["meAvg"]) / f["meTop"] + (f["deWeight"] * f["deAvg"] / (4 * data["weekWarDay"]));
+            if (pv < avg) {
+                //create avg bar
+                var r = document.createElement("tr");
+                var i = document.createElement("td");
+                r.classList.add("average-td");
+                i.innerText = "Average Participation "
+                i.appendChild(getIcon(["fa-solid", "fa-arrow-right"], ""));
+                r.appendChild(i);
+                var avgmember ={
+                    "participation": {
+                        "medals": f["meAvg"],
+                        "donos": f["doAvg"],
+                        "decks": f["deAvg"]
+                    }
+                };
+                var smb = createStackedMedalBar(avgmember, data["partFactors"], data["weekWarDay"]);
+                var td = document.createElement("td");
+                td.appendChild(smb);
+                r.appendChild(td);
+                r.appendChild(document.createElement("td"));
+                r.appendChild(document.createElement("td"));
+                document.getElementById("member-list").appendChild(r);
+                bSetAvg = true;
+            }
+        }
+
         //create new row
         var entryRow = document.createElement("tr");
 
