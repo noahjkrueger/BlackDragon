@@ -25,8 +25,8 @@ app.listen(port, () => {
 //CronJobs
 var CronJob = require('cron').CronJob;
 
-const meWeight = 0.6;
-const deWeight = 0.15;
+const meWeight = 0.55;
+const deWeight = 0.2;
 const doWeight = 0.25;
 
 var fiveMinJob = new CronJob(
