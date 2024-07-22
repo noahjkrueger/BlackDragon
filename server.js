@@ -67,6 +67,12 @@ async function parseDataFromAPI() {
     } catch(e) {continue};
   }
 
+  //find current medal requirement _> format in desc: (space)(number of n digits)(+)
+  var plusIndex = parsedData["description"].indexOf("+");
+  var spaceIndex = parsedData["description"].substring(0, plusIndex).lastIndexOf(" ");
+  const mq = parsedData["description"].substring(spaceIndex + 1, plusIndex);
+  parsedData["medalQuota"] = parseInt(mq);
+
   //for figuring out which weekly war day it is (1, 2, 3, 4)
   const wwDay = Math.max(0, (warData["periodIndex"] % 7) - 2)
   parsedData["weekWarDay"] = wwDay;

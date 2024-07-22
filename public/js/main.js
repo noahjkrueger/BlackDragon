@@ -111,6 +111,9 @@ async function initData() {
     var counter = 1;
     var bSetAvg = false;
 
+    const wwd = data["weekWarDay"];
+    const meThreshold = wwd === 0 ? 0 : data["medalQuota"] / 4 * wwd;
+
     for (const key of data["ordering"]["participationOrder"]) {
         const value = data["memberList"][key];
 
@@ -119,7 +122,7 @@ async function initData() {
             var p = value["participation"];
             var f = data["partFactors"];
             var pv = (p["wMedals"] / f["meTop"]) + (p["wDonos"] / f["doTop"]) + p["wDecks"];
-            var avg = (f["doWeight"] * f["doAvg"]) / f["doTop"] + (f["meWeight"] * f["meAvg"]) / f["meTop"] + (data["weekWarDay"] === 0 ? 0 : (f["deWeight"] * f["deAvg"] / (4 * data["weekWarDay"])));
+            var avg = (f["doWeight"] * f["doAvg"]) / f["doTop"] + (f["meWeight"] * f["meAvg"]) / f["meTop"] + (wwd === 0 ? 0 : (f["deWeight"] * f["deAvg"] / (4 * wwd)));
             if (pv < avg) {
                 //create avg bar
                 var r = document.createElement("tr");
@@ -135,7 +138,7 @@ async function initData() {
                         "decks": f["deAvg"]
                     }
                 };
-                var smb = createStackedMedalBar(avgmember, data["partFactors"], data["weekWarDay"]);
+                var smb = createStackedMedalBar(avgmember, data["partFactors"], wwd);
                 var td = document.createElement("td");
                 td.appendChild(smb);
                 r.appendChild(td);
@@ -162,6 +165,17 @@ async function initData() {
 
         //badges
         datapoint = document.createElement("td");
+
+        //member not on track to hit quota
+        if (value["warData"]["fame"] < meThreshold) {
+            datapoint.appendChild(generateBadge(["fa-solid", "fa-circle-exclamation"], "#ffbf00", "btn", value["name"] + " is not on track to hit medal quota..."));
+        }
+
+        //member cannot hit quota
+        if (data["medalQuota"] - value["warData"]["fame"] - (900 * (4 - wwd)) > 0) {
+            datapoint.appendChild(generateBadge(["fa-solid", "fa-circle-exclamation"], "", "btn-danger", value["name"] + " cannot hit medal quota."));
+        }
+
         //add role badge
         switch(value["role"]) {
             case "leader":
@@ -245,7 +259,8 @@ async function initData() {
 
     //create medal bars
     for (const [key, value] of Object.entries(data["memberList"])) {
-        var stackedBars = createStackedMedalBar(value, data["partFactors"], data["weekWarDay"]);
+
+        var stackedBars = createStackedMedalBar(value, data["partFactors"], wwd);
         document.getElementById("participation" + key).appendChild(stackedBars);
     }
 }
