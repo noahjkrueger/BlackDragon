@@ -119,12 +119,12 @@ async function initData() {
             var p = value["participation"];
             var f = data["partFactors"];
             var pv = (p["wMedals"] / f["meTop"]) + (p["wDonos"] / f["doTop"]) + p["wDecks"];
-            var avg = (f["doWeight"] * f["doAvg"]) / f["doTop"] + (f["meWeight"] * f["meAvg"]) / f["meTop"] + (f["deWeight"] * f["deAvg"] / (4 * data["weekWarDay"]));
+            var avg = (f["doWeight"] * f["doAvg"]) / f["doTop"] + (f["meWeight"] * f["meAvg"]) / f["meTop"] + (data["weekWarDay"] === 0 ? 0 : (f["deWeight"] * f["deAvg"] / (4 * data["weekWarDay"])));
             if (pv < avg) {
                 //create avg bar
                 var r = document.createElement("tr");
                 var i = document.createElement("td");
-                r.classList.add("average-td");
+                i.classList.add("average-td");
                 i.innerText = "Average Participation "
                 i.appendChild(getIcon(["fa-solid", "fa-arrow-right"], ""));
                 r.appendChild(i);
@@ -178,6 +178,11 @@ async function initData() {
                 break;
         }
 
+        //trophy recognition
+        if (value["trophies"] === 9000) {
+            datapoint.appendChild(generateBadge(["fa-solid", "fa-trophy"], "#ffe75c", "btn", "9000 Trophies1"));
+        }
+
         //Weekly medals recognition
         if (value["warData"]["fame"] >= 2000) {
             datapoint.appendChild(generateBadge(["fa-solid", "fa-dragon"], "#ff003e", "btn", "2000+ Weekly Medals!"));
@@ -200,6 +205,9 @@ async function initData() {
         }
         if (value["donations"] > 500) {
             datapoint.appendChild(generateBadge(["fa-solid", "fa-gift"], "", "btn-outline-success", "500+ Weekly Donations!"));
+        }
+        if (value["donations"] > 750) {
+            datapoint.appendChild(generateBadge(["fa-solid", "fa-gift"], "", "btn-success", "750+ Weekly Donations!"));
         } 
 
         //all daily war decks used badge
