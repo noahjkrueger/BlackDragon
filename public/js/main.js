@@ -112,7 +112,7 @@ async function initData() {
     var bSetAvg = false;
 
     const wwd = data["weekWarDay"];
-    const meThreshold = wwd === 0 ? 0 : data["medalQuota"] / 4 * wwd;
+    const meThreshold = wwd === 0 ? 0 : (data["medalQuota"] / 4) * wwd;
 
     for (const key of data["ordering"]["participationOrder"]) {
         const value = data["memberList"][key];
@@ -172,8 +172,22 @@ async function initData() {
         }
 
         //member cannot hit quota
-        if (data["medalQuota"] - value["warData"]["fame"] - (900 * (4 - wwd)) > 0) {
-            datapoint.appendChild(generateBadge(["fa-solid", "fa-circle-exclamation"], "", "btn-danger", value["name"] + " cannot hit medal quota."));
+        const toQuota = data["medalQuota"] - value["warData"]["fame"];
+        const dut = value["warData"]["decksUsedToday"];
+        if (toQuota > 0) {
+            var mePotential = 900 * (4 - wwd);
+            if (dut === 0) {
+                mePotential += 900;
+            }
+            else if (dut === 1) {
+                mePotential += 700;
+            }
+            else {
+                mePotential += 200 * (4 - dut);
+            }
+            if (toQuota - mePotential > 0) {
+                datapoint.appendChild(generateBadge(["fa-solid", "fa-circle-exclamation"], "", "btn-danger", value["name"] + " cannot hit medal quota."));
+            }
         }
 
         //add role badge
@@ -194,7 +208,7 @@ async function initData() {
 
         //trophy recognition
         if (value["trophies"] === 9000) {
-            datapoint.appendChild(generateBadge(["fa-solid", "fa-trophy"], "#ffe75c", "btn", "9000 Trophies1"));
+            datapoint.appendChild(generateBadge(["fa-solid", "fa-trophy"], "#ffe75c", "btn", "9000 Trophies!"));
         }
 
         //Weekly medals recognition
