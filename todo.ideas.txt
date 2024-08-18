@@ -1,0 +1,12 @@
+Convert tables into cards
+cards warning/danger status colors, light good standing
+dropdown to select ordering
+card: name, tag, trophy row 1
+badges row 2
+participation row 3
+cards: single on mobile width, 4 wide for large.
+persistent uptime and storage via self-host
+after persistenet:
+most active times per week heatmap
+participation graphs per member
+new badges for 10 week avgs
