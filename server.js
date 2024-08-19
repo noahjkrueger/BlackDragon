@@ -1,3 +1,4 @@
+require('three');
 //dotenv for hidden data strings
 require('dotenv').config();
 

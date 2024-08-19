@@ -9,6 +9,14 @@
         <!-- Custom CSS -->
         <link href="/css/style.css" rel="stylesheet">
         <link rel="icon" type="image/png" sizes="32x32" href="./img/favicon/favicon-32x32.png">
+        <script type="importmap">
+            {
+              "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@v0.167.1/build/three.module.js",
+                "three/addons/": "https://cdn.jsdelivr.net/npm/three@v0.167.1/examples/jsm/"
+              }
+            }
+          </script>
     </head>
     <div class="toast-container position-fixed bottom-0 end-0">
         <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="false">
@@ -38,7 +46,8 @@
     <body>
         <div class="dragon-section-top">
             <!-- Dragon logo -->
-           <img src="img/dragon-logo-banner.png">
+            <div id="canvas"></div>
+            <img src="img/dragon-logo-banner.png">
             <div class="clan-information-wrapper">
                 <div id="clan-tag" class="clan-information-col-sm"></div>
                 <div id="clan-desc" class="clan-information-col-big"></div>
@@ -75,8 +84,9 @@
         <script src="/js/bootstrap.bundle.min.js"></script>
         <!-- Font Awesome -->
         <script src="https://kit.fontawesome.com/a6af146403.js" crossorigin="anonymous"></script>
-        <!-- Custom Script -->
+        <!-- Custom Scripts -->
         <script src="/js/main.js"></script>
+        <script type="module" src="/js/animation.js"></script>
     </body>
     <footer>
         <div class="disclaimer">
