@@ -39,7 +39,7 @@ var fiveMinJob = new CronJob(
 );
 
 async function parseDataFromAPI() {
-  process.stdout.write("Making API calls\n");
+  process.stdout.write("Updating data!\n");
   var clanData = null;
   var warData = null;
   //get data
@@ -137,35 +137,126 @@ async function parseDataFromAPI() {
     };
   }
 
-  //overwrite memberList with new list that contains all that information
-  parsedData["memberList"] = clanMembers;
+    //store fun information
+    parsedData["partFactors"] = {
+      "doWeight": doWeight,
+      "meWeight": meWeight,
+      "deWeight": deWeight,
+      "doTop": ctopDonations,
+      "topDonors": topDonations,
+      "meTop": ctopMedals,
+      "topMedals": topMedals,
+      "meAvg": meSum / numMembers,
+      "doAvg": doSum / numMembers,
+      "deAvg": wwDay === 0 ? 0 : deSum / numMembers
+    }
 
-  //store  fun information
-  parsedData["partFactors"] = {
-    "doWeight": doWeight,
-    "meWeight": meWeight,
-    "deWeight": deWeight,
-    "doTop": ctopDonations,
-    "topDonors": topDonations,
-    "meTop": ctopMedals,
-    "topMedals": topMedals,
-    "meAvg": meSum / numMembers,
-    "doAvg": doSum / numMembers,
-    "deAvg": wwDay === 0 ? 0 : deSum / numMembers
+  //Determine each member's badges
+  for (const [key, value] of Object.entries(clanMembers)) {
+    var badges = [];
+    var status = "standing-good";
+    //Determine if member is on track to hit quota or cannot hit quota
+    if (value["warData"]["fame"] < (wwDay === 0 ? 0 : (parsedData["medalQuota"] / 4) * wwDay)) {
+      status = "standing-warning";
+    }
+    else {
+      const toQuota = parsedData["medalQuota"] - value["warData"]["fame"];
+      const dut = value["warData"]["decksUsedToday"];
+      var mePotential = 900 * (4 - wwDay);
+      if (dut === 0) {
+          mePotential += 900;
+      }
+      else if (dut === 1) {
+          mePotential += 700;
+      }
+      else {
+          mePotential += 200 * (4 - dut);
+      }
+      if (toQuota - mePotential > 0) {
+          status = "standing-violation";
+      }
+    }
+    //add role badge
+    switch(value["role"]) {
+      case "leader":
+          badges.push("leader");
+          break;
+      case "coLeader":
+          badges.push("coleader");
+          break;
+      case "elder":
+          badges.push("elder");
+          break
+      case "member":
+          badges.push("member");
+          break;
+    }
+    //Trophy recognition
+    if (value["trophies"] === 9000) {
+      badges.push("ninek");
+    }
+    //CR vet by xp level
+    if(value["expLevel"] >= 55) {
+      badges.push("cr-vet");
+    }
+    //Weekly War Rec
+    if (value["warData"]["fame"] >= 3000) {
+      badges.push("medals-threek");
+    } else if (value["warData"]["fame"] >= 2500) {
+      badges.push("medals-twohalfk");
+    } else if (value["warData"]["fame"] >= 2000) {
+      badges.push("medals-twok");
+    }
+    //donations
+    if(value["donations"] > 1000) {
+      badges.push("donations-onek");
+    }
+    if(value["donations"] > 750) {
+      badges.push("donations-sevenhalf");
+    }
+    if(value["donations"] > 500) {
+      badges.push("donations-five");
+    }
+    //all daily war decks used badge
+    if(value["warData"]["decksUsedToday"] == 4) {
+      badges.push("decks-used-all");
+    }
+    //top medalist
+    if (parsedData["partFactors"]["topMedals"].includes(key)) {
+      badges.push("top-medalist");
+    }
+    //top donor
+    if (parsedData["partFactors"]["topDonors"].includes(key)) {
+      badges.push("top-donor");
+    }
+    clanMembers[key]["badges"] = badges;
+    clanMembers[key]["status"] = status;
   }
 
+  //overwrite memberList with new list that contains all that information
+  parsedData["memberList"] = clanMembers;
 
   //create different orderings for displayin data client-side
   //add to parsed data. trophyOrder is the default order returned by API.
   //part: factor in maximums
   parsedData["ordering"] = {
-    "trophyOrder": Object.keys(clanMembers), 
-    "participationOrder": Object.keys(clanMembers).sort((m1, m2) => {
+    "Participation": Object.keys(clanMembers).sort((m1, m2) => {
       var a = clanMembers[m1]["participation"];
       var b = clanMembers[m2]["participation"];
       var av = (a["wMedals"] / ctopMedals) + (a["wDonos"] / ctopDonations) + (a["wDecks"]);
       var bv = (b["wMedals"] / ctopMedals) + (b["wDonos"] / ctopDonations) + (b["wDecks"]);
       return av < bv ? 1 : (av === bv ? 0 : -1);
+    }),
+    "Trophies": Object.keys(clanMembers),
+    "Name": Object.keys(clanMembers).sort((m1, m2) => {
+      var a = clanMembers[m1]["name"];
+      var b = clanMembers[m2]["name"];
+      return a != b ? (a < b ? -1 : 1) : 0;
+    }),
+    "Tag": Object.keys(clanMembers).sort((m1, m2) => {
+      var a = clanMembers[m1]["tag"];
+      var b = clanMembers[m2]["tag"];
+      return a != b ? (a < b ? -1 : 1) : 0;
     })
   };
 

@@ -1,11 +1,28 @@
-.average-td {
-    --bs-table-bg: #8b0000;
-    --bs-table-hover-bg: #8b0000;
+.card-header {
+    display: flex;
 }
+
+.card-header-sm {
+    flex: 1.5;
+    font-weight: 100;
+    font-size: 75%;
+}
+
+.card-header-med {
+    flex: 2;
+    font-weight: 100;
+    font-size: 75%;
+}
+
+.card-header-lg {
+    flex: 11;
+}
+
 
 .clan-information-wrapper {
     margin: auto;
     padding-left: 2vw;
+    padding-right: 2vw;
     display: flex;
     color: #fff;
     background-color: #000;
@@ -18,11 +35,11 @@
 }
 
 .clan-information-col-big {
-    flex: 10;
+    flex: 8;
 }
 
 .clan-information-col-med {
-    flex: 3;
+    flex: 2.1;
 }
 
 .clan-information-col-sm{
@@ -48,9 +65,25 @@
     user-select: none;
 }
 
+.dragon-section-content {
+    padding-top: 2vh;
+    background-color: #000;
+}
+
+.dragon-section-content .spinner {
+    padding-top: 15vh;
+    padding-bottom: 15vh;
+
+}
+.dragon-section-content .spinner .spinner-border {
+    width: 5rem;
+    height: 5rem;
+}
+
 .dragon-section-top {
     background-color: #000;
 }
+
 
 .dragon-section-top img {
     display: block;
@@ -88,92 +121,57 @@ html {
     background-color: #000;
 }
 
-.link-section {
-    width: max-content;
-    margin: auto;
+.member-row {
+    width: 100vw;
     display: flex;
-    margin: auto;
 }
 
-.link-section-wrapper {
-    background-color: #000;
-    padding-top: 1vh;
-    padding-bottom: 1vh;
-}
-
-
-.member-list {
-    width: 96vw;
-    margin: auto;
-    border: 1px solid #700000;
-}
-
-.member-list-wrapper {
-    background-color: #000;
+.member-card {
+    width: 32.25vw;
+    margin-left: 1vw;
+    margin-bottom: 1vw;
+    color: #fff;
     font-weight: 600;
-    padding: 1vw;
-    margin: auto;
     font-family:'Courier New', Courier, monospace;
+    font-size: 1.25vw;
 }
 
-.member-list-wrapper caption {
-    color: #eee;
-}
-
-.tag-link {
-    font-size: 75%;
-    font-weight: 100;
+.member-tag-link {
     color: #ff0000;
-}
-
-td button {
-    margin-right: 0.25vw;
-}
-
-.responsive-div-med {
-    width: 10vw;
-}
-
-.responsive-div-short {
-    width: 4vw;
-}
-
-.responsive-div-long {
-    width: 50vw;
+    text-decoration: none;
+    font-weight: 100;
+    font-size: 50%;
 }
 
 @media (max-width: 800px) {
+    .card-header-lg {
+        flex: 9;
+    }
+
     .clan-information-wrapper {
       flex-direction: column;
     }
 
     .clan-information-col-big {
-        padding-top: 2vh;
+        margin-top: 2vh;
     }
 
     .clan-information-col-med {
-        padding-top: 2vh;
+        margin-top: 2vh;
     }
 
     .clan-information-col-sm {
-        padding-top: 2vh;
+        margin-top: 2vh;
     }
 
-    .responsive-div-med {
-        width: 50vw;
-    }
-    
-    .responsive-div-short {
-        width: 25vw;
-    }
-    
-    .responsive-div-long {
-        width: 90vw;
+    .member-row {
+        flex-direction: column;
     }
 
-    td button {
-        margin-right: 0.5vw;
-        margin-bottom: 0.5vw;
-    }    
-    
+    .member-card {
+        width: 96vw;
+        margin: auto;
+        margin-bottom: 2vh;
+        font-size: 5vw;
+    }
   }

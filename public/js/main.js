@@ -1,84 +1,290 @@
+class DocumentHelper {
+    appendClassList(elm, classlist) {
+        for (const classname of classlist) {
+            elm.classList.add(classname);
+        }
+    }
+
+    generateIcon(classes, color="") {
+        var icon = document.createElement("i");
+        this.appendClassList(icon, classes);
+        if (color) {
+            icon.style = `color : ${color}`;
+        }
+        return icon;
+    } 
+
+}
+
+const helper = new DocumentHelper();
 var popoverList = [];
 
-//Icon Generator
-function getIcon(classes, color) {
-    var icon_element = document.createElement("i");
-    for (var classname of classes) {
-        icon_element.classList.add(classname);
+function updateMetadata(updateTime, clanTag, clanMembers, clanDescription, clanScore, clanTrophies, clanDonations) {
+    function updateItem(id, classlist, color, appendText) {
+        var elm = document.getElementById(id);
+        //reset HTML
+        elm.innerHTML = "";
+        elm.appendChild(helper.generateIcon(classlist, color));
+        elm.innerHTML += appendText;
     }
-    if (color) {
-        icon_element.style = "color: " + color;
-    }
-    return icon_element;
+    //Update metadata-data-time
+    updateItem("metadata-data-time", ["fa-solid", "fa-pen-to-square"], "", `Last Updated: ${updateTime}`);
+
+    //Update metadata-clan-tag
+    updateItem("metadata-clan-tag", ["fa-solid", "fa-hashtag"], "#ff0000", clanTag);
+
+    //Update metadata-clan-members
+    updateItem("metadata-clan-members", ["fa-solid", "fa-person"], "#00cff3", `${clanMembers} / 50`);
+
+    //Update metadata-clan-description
+    updateItem("metadata-clan-description", ["fa-solid", "fa-comment"], "", clanDescription);
+
+    //Update metadata-clan-score
+    updateItem("metadata-clan-score", ["fa-solid", "fa-trophy"], "#ffe75c", clanScore);
+    
+    //Update metadata-clan-trophies
+    updateItem("metadata-clan-trophies", ["fa-solid", "fa-trophy"], "#ad00f1", clanTrophies);
+
+    //Update metadata-clan-donations
+    updateItem("metadata-clan-donations", ["fa-solid", "fa-gift"], "#00a00d", clanDonations);
 }
 
-//Generate a badge
-function generateBadge(iconclasses, iconcolor, buttonvariant, tooltiptext) {
-    var badge = document.createElement("button");
-    var icon = getIcon(iconclasses, iconcolor);
-
-    badge.classList.add("btn");
-    badge.classList.add("btn-sm");
-    badge.classList.add(buttonvariant);
-
-    badge.setAttribute("data-bs-toggle", "tooltip");
-    badge.setAttribute("data-bs-placement", "right");
-    badge.setAttribute("data-bs-title", tooltiptext);
-
-    badge.appendChild(icon);
-    popoverList.push(new bootstrap.Tooltip(badge));
-    return badge;
-}
-
-function createStackedMedalBar(member, factors, wwd) {
-    var stacked = document.createElement("div");
-    stacked.classList.add("progress-stacked");
-    if (wwd > 0) {
-        stacked.appendChild(createMedalBar(factors["deWeight"], 4 * wwd, member["participation"]["decks"], "text-bg-pimary", "Weekly War Decks: "));
-        stacked.appendChild(createMedalBar(factors["meWeight"], factors["meTop"], member["participation"]["medals"], "text-bg-danger", "Weekly War Medals: "));
-        stacked.appendChild(createMedalBar(factors["doWeight"], factors["doTop"], member["participation"]["donos"], "text-bg-success", "Weekly Donations: "));
+function initOrderButton(orderingKeys) {
+    var select = document.getElementById("data-ordering");
+    //reset HTML
+    select.innerHTML = "";
+    for (const key of orderingKeys) {
+        var option = document.createElement("option");
+        option.setAttribute("value", key);
+        option.innerText = `Sort: ${key}`;
+        option.id = `key-${key}`;
+        option.addEventListener("click", (e) => {
+            document.getElementById("member-canvas").innerHTML = "";
+            document.querySelector("[selected=null]").removeAttribute("selected");
+            option.setAttribute("selected", null);
+            populateMemberList(data);
+        });
+        select.appendChild(option);
     }
-    else {
-        stacked.appendChild(createMedalBar(1, factors["doTop"], member["participation"]["donos"], "text-bg-success", "Weekly Donations: "));
+    document.getElementById(`key-${orderingKeys[0]}`).setAttribute("selected", null);
+}
+
+
+async function populateMemberList(data) {
+    var memberCanvas = document.getElementById("member-canvas");
+    //Set spinner status to 'on' (visible)
+    setLoaderVisibility(true);
+
+    //helper functions for orginization
+    function generateBadge(iconClasses, iconColor, buttonVariant, toolTipText) {
+        var badge = document.createElement("button");
+        var icon = helper.generateIcon(iconClasses, iconColor);
+    
+        badge.classList.add("btn");
+        badge.classList.add("btn-sm");
+        badge.classList.add(buttonVariant);
+    
+        badge.setAttribute("data-bs-toggle", "tooltip");
+        badge.setAttribute("data-bs-placement", "right");
+        badge.setAttribute("data-bs-title", toolTipText);
+    
+        badge.appendChild(icon);
+        popoverList.push(new bootstrap.Tooltip(badge));
+        return badge;
     }
-    return stacked;
+
+    function setTopCardInfo(info, status, name, tag, trophies) {
+        var statusDiv = document.createElement("div");
+        helper.appendClassList(statusDiv, ["card-header-sm"]);
+        switch (status) {
+            case "standing-good":
+                statusDiv.appendChild(generateBadge(["fa-solid", "fa-circle-check"], "", "btn-success", name + " is an honored member!"));
+                break;
+            case "status-warning":
+                statusDiv.appendChild(generateBadge(["fa-solid", "fa-circle-exclamation"], "#ffbf00", "btn", name + " is not on track to hit medal quota..."));
+                break;
+            case "status-violation":
+                statusDiv.appendChild(generateBadge(["fa-solid", "fa-circle-exclamation"], "", "btn-danger", name + " cannot hit medal quota."));
+                break;
+        }
+
+        var nameDiv = document.createElement("div");
+        helper.appendClassList(nameDiv, ["card-header-lg"]);
+        nameDiv.innerHTML = name;
+
+        var tagDiv = document.createElement("a");
+        helper.appendClassList(tagDiv, ["member-tag-link"]);
+        tagDiv.setAttribute("href", `https://royaleapi.com/player/${tag.substring(1)}`);
+        tagDiv.setAttribute("target", "_blank");
+        tagDiv.innerText = tag;
+        nameDiv.appendChild(tagDiv);
+
+        var trophiesDiv = document.createElement("div");
+        helper.appendClassList(trophiesDiv, ["card-header-med"]);
+        trophiesDiv.appendChild(helper.generateIcon(["fa-solid", "fa-trophy"], "#ffe75c"));
+        trophiesDiv.innerHTML += trophies;
+
+        info.appendChild(statusDiv);
+        info.appendChild(nameDiv);
+        info.appendChild(trophiesDiv);
+    }
+
+    function setMidCardInfo(info, member, factors, wwd) {
+        function createMedalBar(weight, max, value, theme, predesc) {
+            var bar = document.createElement("div");
+            bar.classList.add("progress-bar");
+            bar.classList.add("progress-bar-striped");
+            bar.classList.add("progress-bar-animated");
+            bar.classList.add(theme);
+            bar.innerText = value;
+        
+            var barwrap = document.createElement("div");
+            barwrap.appendChild(bar);
+            barwrap.classList.add("progress");
+            barwrap.setAttribute("role", "progressbar");
+            barwrap.setAttribute("aria-valuenow", value);
+            barwrap.setAttribute("aria-valuemin", "0");
+            barwrap.setAttribute("aria-valuemax", max);
+        
+            var scaleRatio = max === 0 ? 0 : Math.round((100 * value /  max) * weight);
+            barwrap.setAttribute("style", "width: " + scaleRatio + "%");
+        
+            barwrap.setAttribute("data-bs-toggle", "tooltip");
+            barwrap.setAttribute("data-bs-placement", "top");
+            barwrap.setAttribute("data-bs-title", `${predesc}${value}`);
+            popoverList.push(new bootstrap.Tooltip(barwrap));
+        
+            return barwrap;
+        }
+        var stacked = document.createElement("div");
+        stacked.classList.add("progress-stacked");
+        if (wwd > 0) {
+            stacked.appendChild(createMedalBar(factors["deWeight"], 4 * wwd, member["participation"]["decks"], "text-bg-pimary", "Weekly War Decks: "));
+            stacked.appendChild(createMedalBar(factors["meWeight"], factors["meTop"], member["participation"]["medals"], "text-bg-danger", "Weekly War Medals: "));
+            stacked.appendChild(createMedalBar(factors["doWeight"], factors["doTop"], member["participation"]["donos"], "text-bg-success", "Weekly Donations: "));
+        }
+        else {
+            stacked.appendChild(createMedalBar(1, factors["doTop"], member["participation"]["donos"], "text-bg-success", "Weekly Donations: "));
+        }
+        info.appendChild(stacked);
+    }
+
+    function setBotCardInfo(info, badges) {
+        for (const badge of badges) {
+            switch(badge) {
+                case "leader":
+                    info.appendChild(generateBadge(["fa-solid", "fa-chess-king"], "", "btn-light", "Crowned Dragon (Leader)"));
+                    break;
+                case "coleader":
+                    info.appendChild(generateBadge(["fa-solid", "fa-fire"], "", "btn-outline-warning", "Ancient Dragon (Co-Leader)"));
+                    break;
+                case "elder":
+                    info.appendChild(generateBadge(["fa-solid", "fa-fire-flame-curved"], "#f59042", "btn", "Elder Dragon (Elder)"));
+                    break;
+                case "member":
+                    info.appendChild(generateBadge(["fa-solid", "fa-egg"], "#ffffff", "btn", "Baby Dragon (Member)"));
+                    break;
+                case "ninek":
+                    info.appendChild(generateBadge(["fa-solid", "fa-trophy"], "#ffe75c", "btn", "9000 Trophies!"));
+                    break;
+                case "cr-vet":
+                    info.appendChild(generateBadge(["fa-solid", "fa-clock"], "#00cff3", "btn", "Level 55+"));
+                    break;
+                case "medals-threek":
+                    info.appendChild(generateBadge(["fa-solid", "fa-dragon"], "", "btn-danger", "3000+ Weekly Medals!"));
+                    break;
+                case "medals-twohalfk":
+                    info.appendChild(generateBadge(["fa-solid", "fa-dragon"], "", "btn-outline-danger", "2500+ Weekly Medals!"));
+                    break;
+                case "medals-twok":
+                    info.appendChild(generateBadge(["fa-solid", "fa-dragon"], "#ff003e", "btn", "2000+ Weekly Medals!"));
+                    break;
+                case "donations-onek":
+                    info.appendChild(generateBadge(["fa-solid", "fa-gift"], "", "btn-success", "1000+ Weekly Donations!"));
+                    break;
+                case "donations-sevenhalf":
+                    info.appendChild(generateBadge(["fa-solid", "fa-gift"], "", "btn-outline-success", "750+ Weekly Donations!"));
+                    break;
+                case "donations-five":
+                    info.appendChild(generateBadge(["fa-solid", "fa-gift"], "#00a00d", "btn", "500+ Weekly Donations!"));
+                    break;
+                case "decks-used-all":
+                    info.appendChild(generateBadge(["fa-solid", "fa-copy"], "#0070ff", "btn", "All decks used today! (Includes training days)"));
+                    break;
+                case "top-medalist":
+                    info.appendChild(generateBadge(["fa-solid", "fa-hand-fist"], "", "btn-danger", "#1 War Medal Earner: " + data["partFactors"]["meTop"] + " medals!"));
+                    break;
+                case "top-donor":
+                    info.appendChild(generateBadge(["fa-solid", "fa-hand-holding-medical"], "", "btn-success", "#1 Donor: " + data["partFactors"]["doTop"] + " donations!"));
+                    break;
+            }
+        }
+    }
+
+    //Get current ordering
+    const order = data["ordering"][document.querySelector("[selected=null]").getAttribute("value")];
+    const members = data["memberList"];
+
+    var cardInRow = 0;
+    var row = document.createElement("div");
+    for (const k of order) {
+        const v = members[k];
+        if (cardInRow === 0) {
+            cardInRow = 3;
+            memberCanvas.appendChild(row);
+            row = document.createElement("div");
+            helper.appendClassList(row, ["member-row"]);
+            //TODO: set row attributes
+        }
+        cardInRow-=1;
+
+        var card = document.createElement("div");
+        helper.appendClassList(card, ["member-card", "card", "text-bg-dark"]);
+        var cardTop = document.createElement("div");
+        var cardMid = document.createElement("div");
+        var cardBot = document.createElement("div");
+
+        helper.appendClassList(cardTop, ["card-header"]);
+        setTopCardInfo(cardTop, v["status"], v["name"], v["tag"], v["trophies"]);
+
+        helper.appendClassList(cardMid, ["card-body"]);
+        setMidCardInfo(cardMid, v, data["partFactors"], data["warWeekDay"]);
+
+        helper.appendClassList(cardBot, ["card-footer"]);
+        setBotCardInfo(cardBot, v["badges"]);
+
+        card.appendChild(cardTop);
+        card.appendChild(cardMid);
+        card.appendChild(cardBot);
+
+        row.appendChild(card);
+    }
+    memberCanvas.appendChild(row);
+
+    //Set spinner status to 'off' (invisible)
+    setLoaderVisibility(false);
 }
 
-//medal bar
-function createMedalBar(weight, max, value, theme, predesc) {
-    var bar = document.createElement("div");
-    bar.classList.add("progress-bar");
-    bar.classList.add("progress-bar-striped");
-    bar.classList.add("progress-bar-animated");
-    bar.classList.add(theme);
-    bar.innerText = value;
-
-    var barwrap = document.createElement("div");
-    barwrap.appendChild(bar);
-    barwrap.classList.add("progress");
-    barwrap.setAttribute("role", "progressbar");
-    barwrap.setAttribute("aria-valuenow", value);
-    barwrap.setAttribute("aria-valuemin", "0");
-    barwrap.setAttribute("aria-valuemax", max);
-
-    var scaleRatio = max === 0 ? 0 : Math.round((100 * value /  max) * weight);
-    barwrap.setAttribute("style", "width: " + scaleRatio + "%");
-
-    barwrap.setAttribute("data-bs-toggle", "tooltip");
-    barwrap.setAttribute("data-bs-placement", "top");
-    barwrap.setAttribute("data-bs-title", `${predesc}${value}`);
-    popoverList.push(new bootstrap.Tooltip(barwrap));
-
-    return barwrap;
+function setLoaderVisibility(visible) {
+    var spinner = document.getElementById("loading-spinner");
+    if (visible && spinner.classList.contains("visually-hidden")) {
+        spinner.classList.remove("visually-hidden");
+    }
+    else if (!spinner.classList.contains("visually-hidden")) {
+        document.getElementById("loading-spinner").classList.add("visually-hidden");
+    }
 }
 
-async function initData() {
-    var data = null;
-    //Get most recent parsed
+var data = null;
+async function refreshData() {
+    //Set spinner status to 'on' (visible)
+    setLoaderVisibility(true);
+
+    var dataTime = "";
+    //Get most recent parsed data
     try {
         await fetch('./data/parsed_data.json').then((response) => {
-            //Update Table Caption to reflect data modify date
-            document.getElementById("member-list-caption").innerText = `Last Updated: ${response["headers"].get("last-modified")}`;
+            dataTime = response["headers"].get("last-modified");
             return response.json();
         }).then((json) => data = json);
     } catch (e) {
@@ -86,201 +292,24 @@ async function initData() {
         return;
     }
 
-    //Clan tag
-    var clantag = document.getElementById("clan-tag");
-    clantag.appendChild(getIcon(["fa-solid", "fa-hashtag"], "#ff0000"));
-    clantag.innerHTML += data["tag"].substring(1);
+    //Initialize Order Button
+    initOrderButton(Object.keys(data["ordering"]));
 
-    //Update Clan information
-    var clandesc = document.getElementById("clan-desc");
-    clandesc.appendChild(getIcon(["fa-solid", "fa-comment"], "#fff"));
-    clandesc.innerHTML += data["description"];
+    //Update the top of the webapp with clan metadata
+    updateMetadata(dataTime, data["tag"].substring(1), data["members"], data["description"], data["clanScore"], data["clanWarTrophies"], data["donationsPerWeek"]);
 
-    var clanscore = document.getElementById("clan-score");
-    clanscore.appendChild(getIcon(["fa-solid", "fa-trophy"], "#ad00f1"));
-    clanscore.innerHTML += data["clanWarTrophies"];
+    //Populate Member Data
+    await populateMemberList(data);
 
-    var clantrophies = document.getElementById("clan-trophies");
-    clantrophies.appendChild(getIcon(["fa-solid", "fa-trophy"], "#ffe75c"));
-    clantrophies.innerHTML += data["clanScore"];
-
-    var clandono = document.getElementById("clan-donos");
-    clandono.appendChild(getIcon(["fa-solid", "fa-gift"], "#00a00d"));
-    clandono.innerHTML += data["donationsPerWeek"];
-
-    var counter = 1;
-    var bSetAvg = false;
-
-    const wwd = data["weekWarDay"];
-    const meThreshold = wwd === 0 ? 0 : (data["medalQuota"] / 4) * wwd;
-
-    for (const key of data["ordering"]["participationOrder"]) {
-        const value = data["memberList"][key];
-
-        //add average participation bar if member below avg
-        if (!bSetAvg) {
-            var p = value["participation"];
-            var f = data["partFactors"];
-            var pv = (p["wMedals"] / f["meTop"]) + (p["wDonos"] / f["doTop"]) + p["wDecks"];
-            var avg = (f["doWeight"] * f["doAvg"]) / f["doTop"] + (f["meWeight"] * f["meAvg"]) / f["meTop"] + (wwd === 0 ? 0 : (f["deWeight"] * f["deAvg"] / (4 * wwd)));
-            if (pv < avg) {
-                //create avg bar
-                var r = document.createElement("tr");
-                var i = document.createElement("td");
-                i.classList.add("average-td");
-                i.innerText = "Average Participation "
-                i.appendChild(getIcon(["fa-solid", "fa-arrow-right"], ""));
-                r.appendChild(i);
-                var avgmember ={
-                    "participation": {
-                        "medals": f["meAvg"],
-                        "donos": f["doAvg"],
-                        "decks": f["deAvg"]
-                    }
-                };
-                var smb = createStackedMedalBar(avgmember, data["partFactors"], wwd);
-                var td = document.createElement("td");
-                td.appendChild(smb);
-                r.appendChild(td);
-                r.appendChild(document.createElement("td"));
-                r.appendChild(document.createElement("td"));
-                document.getElementById("member-list").appendChild(r);
-                bSetAvg = true;
-            }
-        }
-
-        //create new row
-        var entryRow = document.createElement("tr");
-
-        //name col
-        datapoint = document.createElement("td");
-        datapoint.innerHTML = `${counter}. ${value["name"]}<a class="tag-link" href='https://royaleapi.com/player/${key.substring(1)}' target="_blank"> ${key}</a>`;
-        datapoint.id = "name" + key;
-        entryRow.appendChild(datapoint);
-
-        //participation row
-        datapoint = document.createElement("td");
-        datapoint.id = "participation" + key;
-        entryRow.appendChild(datapoint);
-
-        //badges
-        datapoint = document.createElement("td");
-
-        //member not on track to hit quota
-        if (value["warData"]["fame"] < meThreshold) {
-            datapoint.appendChild(generateBadge(["fa-solid", "fa-circle-exclamation"], "#ffbf00", "btn", value["name"] + " is not on track to hit medal quota..."));
-        }
-
-        //member cannot hit quota
-        const toQuota = data["medalQuota"] - value["warData"]["fame"];
-        const dut = value["warData"]["decksUsedToday"];
-        if (toQuota > 0) {
-            var mePotential = 900 * (4 - wwd);
-            if (dut === 0) {
-                mePotential += 900;
-            }
-            else if (dut === 1) {
-                mePotential += 700;
-            }
-            else {
-                mePotential += 200 * (4 - dut);
-            }
-            if (toQuota - mePotential > 0) {
-                datapoint.appendChild(generateBadge(["fa-solid", "fa-circle-exclamation"], "", "btn-danger", value["name"] + " cannot hit medal quota."));
-            }
-        }
-
-        //add role badge
-        switch(value["role"]) {
-            case "leader":
-                datapoint.appendChild(generateBadge(["fa-solid", "fa-chess-king"], "", "btn-light", "Crowned Dragon (Leader)"));
-                break;
-            case "coLeader":
-                datapoint.appendChild(generateBadge(["fa-solid", "fa-fire"], "", "btn-outline-warning", "Ancient Dragon (Co-Leader)"));
-                break;
-            case "elder":
-                datapoint.appendChild(generateBadge(["fa-solid", "fa-fire-flame-curved"], "#f59042", "btn", "Elder Dragon (Elder)"));
-                break
-            case "member":
-                datapoint.appendChild(generateBadge(["fa-solid", "fa-egg"], "#ffffff", "btn", "Baby Dragon (Member)"));
-                break;
-        }
-
-        //trophy recognition
-        if (value["trophies"] === 9000) {
-            datapoint.appendChild(generateBadge(["fa-solid", "fa-trophy"], "#ffe75c", "btn", "9000 Trophies!"));
-        }
-
-        //Weekly medals recognition
-        if (value["warData"]["fame"] >= 2000) {
-            datapoint.appendChild(generateBadge(["fa-solid", "fa-dragon"], "#ff003e", "btn", "2000+ Weekly Medals!"));
-        }
-        if (value["warData"]["fame"] >= 2500) {
-            datapoint.appendChild(generateBadge(["fa-solid", "fa-dragon"], "", "btn-outline-danger", "2500+ Weekly Medals!"));
-        } 
-        if (value["warData"]["fame"] >= 3000) {
-            datapoint.appendChild(generateBadge(["fa-solid", "fa-dragon"], "", "btn-danger", "3000+ Weekly Medals!"));
-        }
-
-        //CR vet by xp level
-        if(value["expLevel"] >= 55) {
-            datapoint.appendChild(generateBadge(["fa-solid", "fa-clock"], "#00cff3", "btn", "Level 55+"));
-        }
-
-        //donations
-        if(value["donations"] > 250) {
-            datapoint.appendChild(generateBadge(["fa-solid", "fa-gift"], "#00a00d", "btn", "250+ Weekly Donations!"));
-        }
-        if (value["donations"] > 500) {
-            datapoint.appendChild(generateBadge(["fa-solid", "fa-gift"], "", "btn-outline-success", "500+ Weekly Donations!"));
-        }
-        if (value["donations"] > 750) {
-            datapoint.appendChild(generateBadge(["fa-solid", "fa-gift"], "", "btn-success", "750+ Weekly Donations!"));
-        } 
-
-        //all daily war decks used badge
-        if(value["warData"]["decksUsedToday"] == 4) {
-            datapoint.appendChild(generateBadge(["fa-solid", "fa-copy"], "#0070ff", "btn", "All decks used today! (Includes training days)"));
-        }
-
-        datapoint.id = "badges" + key;
-        entryRow.appendChild(datapoint);
-
-        //trophies col
-        datapoint = document.createElement("td");
-        icon = getIcon(["fa-solid", "fa-trophy"], "#ffe75c");
-        datapoint.appendChild(icon);
-        datapoint.innerHTML += " " + value["trophies"];
-        datapoint.id = "trophies" + key;
-        entryRow.appendChild(datapoint);
-
-        //append row to member list element
-        document.getElementById("member-list").appendChild(entryRow);
-        counter += 1;
-    }
-
-    //top medals
-    for (const id of data["partFactors"]["topMedals"]) {
-        var badgetd = document.getElementById("badges"+id);
-        badgetd.appendChild(generateBadge(["fa-solid", "fa-hand-fist"], "", "btn-danger", "#1 War Medal Earner: " + data["partFactors"]["meTop"] + " medals!"));
-    }
-
-    //top donos
-    for (const id of data["partFactors"]["topDonors"]) {
-        var badgetd = document.getElementById("badges"+id);
-        badgetd.appendChild(generateBadge(["fa-solid", "fa-hand-holding-medical"], "", "btn-success", "#1 Donor: " + data["partFactors"]["doTop"] + " donations!"));
-    }
-
-    //create medal bars
-    for (const [key, value] of Object.entries(data["memberList"])) {
-
-        var stackedBars = createStackedMedalBar(value, data["partFactors"], wwd);
-        document.getElementById("participation" + key).appendChild(stackedBars);
-    }
+    //Set spinner status to 'off' (invisible)
+    setLoaderVisibility(false);
 }
 
-//Populate Data
-initData();
 
 //links popup
 bootstrap.Toast.getOrCreateInstance(document.getElementById('liveToast')).show();
+
+refreshData();
+
+//Set auto-refresh loop 300 * 1000 milliseconds (5 minutes)
+setInterval(refreshData, 300000);

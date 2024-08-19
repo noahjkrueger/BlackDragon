@@ -9,14 +9,14 @@
         <!-- Custom CSS -->
         <link href="/css/style.css" rel="stylesheet">
         <link rel="icon" type="image/png" sizes="32x32" href="./img/favicon/favicon-32x32.png">
-        <script type="importmap">
+        <!-- <script type="importmap">
             {
               "imports": {
                 "three": "https://cdn.jsdelivr.net/npm/three@v0.167.1/build/three.module.js",
                 "three/addons/": "https://cdn.jsdelivr.net/npm/three@v0.167.1/examples/jsm/"
               }
             }
-          </script>
+          </script> -->
     </head>
     <div class="toast-container position-fixed bottom-0 end-0">
         <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="false">
@@ -46,35 +46,35 @@
     <body>
         <div class="dragon-section-top">
             <!-- Dragon logo -->
-            <div id="canvas"></div>
+            <!-- <div id="canvas"></div> -->
             <img src="img/dragon-logo-banner.png">
             <div class="clan-information-wrapper">
-                <div id="clan-tag" class="clan-information-col-sm"></div>
-                <div id="clan-desc" class="clan-information-col-big"></div>
-                <div id="clan-score" class="clan-information-col-sm"></div>
-                <div id="clan-trophies" class="clan-information-col-sm"></div>
-                <div id="clan-donos" class="clan-information-col-sm"></div>
+                <div id="metadata-clan-tag" class="clan-information-col-sm"></div>
+                <div id="metadata-clan-members" class="clan-information-col-sm"></div>
+                <div id="metadata-clan-score" class="clan-information-col-sm"></div>
+                <div id="metadata-clan-trophies" class="clan-information-col-sm"></div>
+                <div id="metadata-clan-donations" class="clan-information-col-sm"></div>
+                <div id="metadata-clan-description" class="clan-information-col-big"></div>
                 <div id="" class="clan-information-col-med">
                     <a data-bs-toggle="modal" data-bs-target="#dragonsCreed"><i class="fa-solid fa-scroll"></i> The Dragon's Creed</a>
                 </div>
             </div>
-       </div>
-        <main>
-            <div class="member-list-wrapper table-responsive">
-                <table class="table table-sm table-dark table-hover align-middle member-list">
-                    <caption id="member-list-caption" class="caption-top">Last Updated:</caption>
-                    <thead class="table-light align-middle">
-                        <tr>
-                            <th scope="col"><div class="responsive-div-med"></div>Dragon</th>
-                            <th scope="col"><div class="responsive-div-long"></div> Participation</th>
-                            <th scope="col"><div class="responsive-div-med"></div>Badges</th>
-                            <th scope="col"><div class="responsive-div-short"></div>Trophies</th>
-                        </tr>
-                    </thead>
-                    <tbody id="member-list" class="table-group-divider"></tbody>
-                  </table>
+            <br>
+            <div class="clan-information-wrapper">
+                <div id="metadata-data-time" class="clan-information-col-big"></div>
+                <!-- TODO: Fix sorting bug in JS -->
+                <select id="data-ordering" class="form-select form-select-sm clan-information-col-sm visually-hidden"></select>                 
             </div>
+       </div>
+        <main class="dragon-section-content">
+            <div id="loading-spinner" class="d-flex justify-content-center spinner">
+                <div class="spinner-border text-danger" role="status">
+                  <span class="visually-hidden">Loading...</span>
+                </div>
+              </div>
+            <div id="member-canvas"></div>
         </main>
+
         <div class="dragon-section-bottom">
             <!-- Dragon logo -->
            <img src="img/dragon-logo-single.png">
@@ -86,11 +86,11 @@
         <script src="https://kit.fontawesome.com/a6af146403.js" crossorigin="anonymous"></script>
         <!-- Custom Scripts -->
         <script src="/js/main.js"></script>
-        <script type="module" src="/js/animation.js"></script>
+        <!-- <script type="module" src="/js/animation.js"></script> -->
     </body>
     <footer>
         <div class="disclaimer">
-            This content is not affiliated with, endorsed, sponsored, or specifically approved by Supercell and Supercell is not responsible for it. For more information see Supercell's Fan <a href="www.supercell.com/fan-content-policy.">Content Policy</a>.
+            This content is not affiliated with, endorsed, sponsored, or specifically approved by Supercell and Supercell is not responsible for it. For more information see Supercell's Fan <a href="https://www.supercell.com/fan-content-policy">Content Policy</a>.
         </div>
     </footer>
 </html>
