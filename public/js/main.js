@@ -18,6 +18,7 @@ class DocumentHelper {
 
 const helper = new DocumentHelper();
 var popoverList = [];
+var orderingSelector = "";
 
 function updateMetadata(updateTime, clanTag, clanMembers, clanDescription, clanScore, clanTrophies, clanDonations) {
     function updateItem(id, classlist, color, appendText) {
@@ -57,21 +58,19 @@ function initOrderButton(orderingKeys) {
         var option = document.createElement("option");
         option.setAttribute("value", key);
         option.innerText = `Sort: ${key}`;
-        option.id = `key-${key}`;
-        option.addEventListener("click", (e) => {
-            document.getElementById("member-canvas").innerHTML = "";
-            document.querySelector("[selected=null]").removeAttribute("selected");
-            option.setAttribute("selected", null);
-            populateMemberList(data);
+        option.addEventListener("click", async function() {
+            orderingSelector = key;
+            await populateMemberList(data);
         });
         select.appendChild(option);
     }
-    document.getElementById(`key-${orderingKeys[0]}`).setAttribute("selected", null);
+    orderingSelector = orderingKeys[0];
 }
 
 
 async function populateMemberList(data) {
     var memberCanvas = document.getElementById("member-canvas");
+    memberCanvas.innerHTML = "";
     //Set spinner status to 'on' (visible)
     setLoaderVisibility(true);
 
@@ -97,14 +96,19 @@ async function populateMemberList(data) {
         var statusDiv = document.createElement("div");
         helper.appendClassList(statusDiv, ["card-header-sm"]);
         switch (status) {
-            case "standing-good":
-                statusDiv.appendChild(generateBadge(["fa-solid", "fa-circle-check"], "", "btn-success", name + " is an honored member!"));
+            case "leader":
+                statusDiv.appendChild(generateBadge(["fa-solid", "fa-chess-king"], "", "btn-light", "Crowned Dragon (Leader)"));
                 break;
-            case "status-warning":
-                statusDiv.appendChild(generateBadge(["fa-solid", "fa-circle-exclamation"], "#ffbf00", "btn", name + " is not on track to hit medal quota..."));
+            case "coleader":
+                statusDiv.appendChild(generateBadge(["fa-solid", "fa-fire"], "", "btn-outline-warning", "Ancient Dragon (Co-Leader)"));
                 break;
-            case "status-violation":
-                statusDiv.appendChild(generateBadge(["fa-solid", "fa-circle-exclamation"], "", "btn-danger", name + " cannot hit medal quota."));
+            case "elder":
+                statusDiv.appendChild(generateBadge(["fa-solid", "fa-fire-flame-curved"], "#f59042", "btn", "Elder Dragon (Elder)"));
+                break;
+            case "member":
+                statusDiv.appendChild(generateBadge(["fa-solid", "fa-egg"], "#ffffff", "btn", "Baby Dragon (Member)"));
+                break;
+            default:
                 break;
         }
 
@@ -172,17 +176,14 @@ async function populateMemberList(data) {
     function setBotCardInfo(info, badges) {
         for (const badge of badges) {
             switch(badge) {
-                case "leader":
-                    info.appendChild(generateBadge(["fa-solid", "fa-chess-king"], "", "btn-light", "Crowned Dragon (Leader)"));
+                case "standing-good":
+                    info.appendChild(generateBadge(["fa-solid", "fa-circle-check"], "", "btn-success", name + " is an honored member!"));
                     break;
-                case "coleader":
-                    info.appendChild(generateBadge(["fa-solid", "fa-fire"], "", "btn-outline-warning", "Ancient Dragon (Co-Leader)"));
+                case "status-warning":
+                    info.appendChild(generateBadge(["fa-solid", "fa-circle-exclamation"], "#ffbf00", "btn", name + " is not on track to hit medal quota..."));
                     break;
-                case "elder":
-                    info.appendChild(generateBadge(["fa-solid", "fa-fire-flame-curved"], "#f59042", "btn", "Elder Dragon (Elder)"));
-                    break;
-                case "member":
-                    info.appendChild(generateBadge(["fa-solid", "fa-egg"], "#ffffff", "btn", "Baby Dragon (Member)"));
+                case "status-violation":
+                    info.appendChild(generateBadge(["fa-solid", "fa-circle-exclamation"], "", "btn-danger", name + " cannot hit medal quota."));
                     break;
                 case "ninek":
                     info.appendChild(generateBadge(["fa-solid", "fa-trophy"], "#ffe75c", "btn", "9000 Trophies!"));
@@ -217,12 +218,14 @@ async function populateMemberList(data) {
                 case "top-donor":
                     info.appendChild(generateBadge(["fa-solid", "fa-hand-holding-medical"], "", "btn-success", "#1 Donor: " + data["partFactors"]["doTop"] + " donations!"));
                     break;
+                default:
+                    break;
             }
         }
     }
 
     //Get current ordering
-    const order = data["ordering"][document.querySelector("[selected=null]").getAttribute("value")];
+    const order = data["ordering"][orderingSelector];
     const members = data["memberList"];
 
     var cardInRow = 0;
@@ -234,7 +237,6 @@ async function populateMemberList(data) {
             memberCanvas.appendChild(row);
             row = document.createElement("div");
             helper.appendClassList(row, ["member-row"]);
-            //TODO: set row attributes
         }
         cardInRow-=1;
 
@@ -245,7 +247,7 @@ async function populateMemberList(data) {
         var cardBot = document.createElement("div");
 
         helper.appendClassList(cardTop, ["card-header"]);
-        setTopCardInfo(cardTop, v["status"], v["name"], v["tag"], v["trophies"]);
+        setTopCardInfo(cardTop, v["badges"][0], v["name"], v["tag"], v["trophies"]);
 
         helper.appendClassList(cardMid, ["card-body"]);
         setMidCardInfo(cardMid, v, data["partFactors"], data["warWeekDay"]);
@@ -293,10 +295,10 @@ async function refreshData() {
     }
 
     //Initialize Order Button
-    initOrderButton(Object.keys(data["ordering"]));
+    await initOrderButton(Object.keys(data["ordering"]));
 
     //Update the top of the webapp with clan metadata
-    updateMetadata(dataTime, data["tag"].substring(1), data["members"], data["description"], data["clanScore"], data["clanWarTrophies"], data["donationsPerWeek"]);
+    await updateMetadata(dataTime, data["tag"].substring(1), data["members"], data["description"], data["clanScore"], data["clanWarTrophies"], data["donationsPerWeek"]);
 
     //Populate Member Data
     await populateMemberList(data);

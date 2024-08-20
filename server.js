@@ -154,10 +154,24 @@ async function parseDataFromAPI() {
   //Determine each member's badges
   for (const [key, value] of Object.entries(clanMembers)) {
     var badges = [];
-    var status = "standing-good";
+    //add role badge
+    switch(value["role"]) {
+      case "leader":
+          badges.push("leader");
+          break;
+      case "coLeader":
+          badges.push("coleader");
+          break;
+      case "elder":
+          badges.push("elder");
+          break
+      case "member":
+          badges.push("member");
+          break;
+    }
     //Determine if member is on track to hit quota or cannot hit quota
     if (value["warData"]["fame"] < (wwDay === 0 ? 0 : (parsedData["medalQuota"] / 4) * wwDay)) {
-      status = "standing-warning";
+      badges,push("standing-warning");
     }
     else {
       const toQuota = parsedData["medalQuota"] - value["warData"]["fame"];
@@ -173,23 +187,11 @@ async function parseDataFromAPI() {
           mePotential += 200 * (4 - dut);
       }
       if (toQuota - mePotential > 0) {
-          status = "standing-violation";
+          badges.push("standing-violation");
       }
-    }
-    //add role badge
-    switch(value["role"]) {
-      case "leader":
-          badges.push("leader");
-          break;
-      case "coLeader":
-          badges.push("coleader");
-          break;
-      case "elder":
-          badges.push("elder");
-          break
-      case "member":
-          badges.push("member");
-          break;
+      else {
+        badges.push("standing-good")
+      }
     }
     //Trophy recognition
     if (value["trophies"] === 9000) {
@@ -230,7 +232,6 @@ async function parseDataFromAPI() {
       badges.push("top-donor");
     }
     clanMembers[key]["badges"] = badges;
-    clanMembers[key]["status"] = status;
   }
 
   //overwrite memberList with new list that contains all that information
@@ -257,7 +258,7 @@ async function parseDataFromAPI() {
       var a = clanMembers[m1]["tag"];
       var b = clanMembers[m2]["tag"];
       return a != b ? (a < b ? -1 : 1) : 0;
-    })
+    }),
   };
 
   //write to file
