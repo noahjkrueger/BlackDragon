@@ -29,13 +29,13 @@ function updateMetadata(updateTime, clanTag, clanMembers, clanDescription, clanS
         elm.innerHTML += appendText;
     }
     //Update metadata-data-time
-    updateItem("metadata-data-time", ["fa-solid", "fa-pen-to-square"], "", `Last Updated: ${updateTime}`);
+    updateItem("metadata-data-time", ["fa-solid", "fa-pen-to-square"], "#ff0000", `Last Updated: ${updateTime}`);
 
     //Update metadata-clan-tag
     updateItem("metadata-clan-tag", ["fa-solid", "fa-hashtag"], "#ff0000", clanTag);
 
     //Update metadata-clan-members
-    updateItem("metadata-clan-members", ["fa-solid", "fa-person"], "#00cff3", `${clanMembers} / 50`);
+    updateItem("metadata-clan-members", ["fa-solid", "fa-person"], "#00cff3", `${clanMembers}/50`);
 
     //Update metadata-clan-description
     updateItem("metadata-clan-description", ["fa-solid", "fa-comment"], "", clanDescription);
@@ -50,20 +50,21 @@ function updateMetadata(updateTime, clanTag, clanMembers, clanDescription, clanS
     updateItem("metadata-clan-donations", ["fa-solid", "fa-gift"], "#00a00d", clanDonations);
 }
 
-function initOrderButton(orderingKeys) {
+async function initOrderButton(orderingKeys) {
     var select = document.getElementById("data-ordering");
-    //reset HTML
     select.innerHTML = "";
     for (const key of orderingKeys) {
         var option = document.createElement("option");
         option.setAttribute("value", key);
-        option.innerText = `Sort: ${key}`;
-        option.addEventListener("click", async function() {
-            orderingSelector = key;
-            await populateMemberList(data);
-        });
+        option.innerText = `Sort by: ${key}`;
         select.appendChild(option);
     }
+    select.addEventListener("click", () => {
+        if (select.value != orderingSelector) {
+            orderingSelector = select.value;
+            populateMemberList(data);
+        }
+    });
     orderingSelector = orderingKeys[0];
 }
 
@@ -75,7 +76,7 @@ async function populateMemberList(data) {
     setLoaderVisibility(true);
 
     //helper functions for orginization
-    function generateBadge(iconClasses, iconColor, buttonVariant, toolTipText) {
+    function generateBadge(iconClasses, iconColor, buttonVariant, toolTipText, toolTipDirection="top") {
         var badge = document.createElement("button");
         var icon = helper.generateIcon(iconClasses, iconColor);
     
@@ -84,7 +85,7 @@ async function populateMemberList(data) {
         badge.classList.add(buttonVariant);
     
         badge.setAttribute("data-bs-toggle", "tooltip");
-        badge.setAttribute("data-bs-placement", "right");
+        badge.setAttribute("data-bs-placement", toolTipDirection);
         badge.setAttribute("data-bs-title", toolTipText);
     
         badge.appendChild(icon);
@@ -97,16 +98,16 @@ async function populateMemberList(data) {
         helper.appendClassList(statusDiv, ["card-header-sm"]);
         switch (status) {
             case "leader":
-                statusDiv.appendChild(generateBadge(["fa-solid", "fa-chess-king"], "", "btn-light", "Crowned Dragon (Leader)"));
+                statusDiv.appendChild(generateBadge(["fa-solid", "fa-chess-king"], "", "btn-light", "Crowned Dragon (Leader)", "right"));
                 break;
             case "coleader":
-                statusDiv.appendChild(generateBadge(["fa-solid", "fa-fire"], "", "btn-outline-warning", "Ancient Dragon (Co-Leader)"));
+                statusDiv.appendChild(generateBadge(["fa-solid", "fa-fire"], "", "btn-outline-warning", "Ancient Dragon (Co-Leader)", "right"));
                 break;
             case "elder":
-                statusDiv.appendChild(generateBadge(["fa-solid", "fa-fire-flame-curved"], "#f59042", "btn", "Elder Dragon (Elder)"));
+                statusDiv.appendChild(generateBadge(["fa-solid", "fa-fire-flame-curved"], "#f59042", "btn", "Elder Dragon (Elder)", "right"));
                 break;
             case "member":
-                statusDiv.appendChild(generateBadge(["fa-solid", "fa-egg"], "#ffffff", "btn", "Baby Dragon (Member)"));
+                statusDiv.appendChild(generateBadge(["fa-solid", "fa-egg"], "#ffffff", "btn", "Baby Dragon (Member)", "right"));
                 break;
             default:
                 break;
@@ -177,13 +178,13 @@ async function populateMemberList(data) {
         for (const badge of badges) {
             switch(badge) {
                 case "standing-good":
-                    info.appendChild(generateBadge(["fa-solid", "fa-circle-check"], "", "btn-success", name + " is an honored member!"));
+                    info.appendChild(generateBadge(["fa-solid", "fa-circle-check"], "", "btn-outline-success", "Good standing!"));
                     break;
                 case "status-warning":
-                    info.appendChild(generateBadge(["fa-solid", "fa-circle-exclamation"], "#ffbf00", "btn", name + " is not on track to hit medal quota..."));
+                    info.appendChild(generateBadge(["fa-solid", "fa-circle-exclamation"], "#ffbf00", "btn", "Not on track to hit medal quota."));
                     break;
                 case "status-violation":
-                    info.appendChild(generateBadge(["fa-solid", "fa-circle-exclamation"], "", "btn-danger", name + " cannot hit medal quota."));
+                    info.appendChild(generateBadge(["fa-solid", "fa-circle-exclamation"], "", "btn-danger", "Cannot meet medal quota."));
                     break;
                 case "ninek":
                     info.appendChild(generateBadge(["fa-solid", "fa-trophy"], "#ffe75c", "btn", "9000 Trophies!"));
@@ -223,6 +224,7 @@ async function populateMemberList(data) {
             }
         }
     }
+    console.log(orderingSelector);
 
     //Get current ordering
     const order = data["ordering"][orderingSelector];

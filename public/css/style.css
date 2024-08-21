@@ -2,48 +2,22 @@
     display: flex;
 }
 
+.card-header i {
+    font-size: 1vw;
+}
+
 .card-header-sm {
-    flex: 1.5;
-    font-weight: 100;
-    font-size: 75%;
+    flex: 0.75;
 }
 
 .card-header-med {
-    flex: 2;
+    flex: 1.25;
     font-weight: 100;
-    font-size: 75%;
+    font-size: 60%;
 }
 
 .card-header-lg {
-    flex: 11;
-}
-
-
-.clan-information-wrapper {
-    margin: auto;
-    padding-left: 2vw;
-    padding-right: 2vw;
-    display: flex;
-    color: #fff;
-    background-color: #000;
-    font-weight: 600;
-    font-family:'Courier New', Courier, monospace;
-}
-
-.clan-information-wrapper a {
-    cursor: pointer;
-}
-
-.clan-information-col-big {
-    flex: 8;
-}
-
-.clan-information-col-med {
-    flex: 2.1;
-}
-
-.clan-information-col-sm{
-    flex: 1;
+    flex: 10;
 }
 
 .custom-ratio {
@@ -143,25 +117,51 @@ html {
     font-size: 50%;
 }
 
+.metadata-clan {
+    margin: auto;
+    padding-left: 2vw;
+    padding-right: 2vw;
+    display: flex;
+    color: #fff;
+    background-color: #000;
+    font-weight: 600;
+    font-family:'Courier New', Courier, monospace;
+}
+
+.metadata-clan a {
+    cursor: pointer;
+}
+
+.metadata-clan-big {
+    flex: 9;
+}
+
+.metadata-clan-med {
+    flex: 1.35;
+}
+
+.metadata-clan-sm{
+    flex: 0.75;
+}
+
+.metadate-date-time {
+    margin-top: 1.5vh;
+    color: #fff;
+    font-family:'Courier New', Courier, monospace;
+    font-size: 100%;
+}
+
 @media (max-width: 800px) {
-    .card-header-lg {
-        flex: 9;
+    .card-header-sm {
+        flex: 1.5;
     }
 
-    .clan-information-wrapper {
-      flex-direction: column;
+    .card-header-med {
+        flex: 2;
     }
 
-    .clan-information-col-big {
-        margin-top: 2vh;
-    }
-
-    .clan-information-col-med {
-        margin-top: 2vh;
-    }
-
-    .clan-information-col-sm {
-        margin-top: 2vh;
+    .card-header i {
+        font-size: 3.75vw;
     }
 
     .member-row {
@@ -173,5 +173,21 @@ html {
         margin: auto;
         margin-bottom: 2vh;
         font-size: 5vw;
+    }
+
+    .metadata-clan {
+        flex-direction: column;
+      }
+  
+    .metadata-clan-big {
+        margin-top: 2vh;
+    }
+
+    .metadata-clan-med {
+        margin-top: 2vh;
+    }
+
+    .metadata-clan-sm {
+        margin-top: 2vh;
     }
   }
