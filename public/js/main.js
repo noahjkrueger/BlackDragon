@@ -59,12 +59,12 @@ async function initOrderButton(orderingKeys) {
         option.innerText = `Sort by: ${key}`;
         select.appendChild(option);
     }
-    select.addEventListener("click", () => {
+    select.onchange = () => {
         if (select.value != orderingSelector) {
             orderingSelector = select.value;
             populateMemberList(data);
         }
-    });
+    };
     orderingSelector = orderingKeys[0];
 }
 
@@ -151,7 +151,7 @@ async function populateMemberList(data) {
             barwrap.setAttribute("aria-valuemin", "0");
             barwrap.setAttribute("aria-valuemax", max);
         
-            var scaleRatio = max === 0 ? 0 : Math.round((100 * value /  max) * weight);
+            var scaleRatio = max === 0 ? 0 : Math.round((100 * value /  (max === 0 ? 1 : max)) * weight);
             barwrap.setAttribute("style", "width: " + scaleRatio + "%");
         
             barwrap.setAttribute("data-bs-toggle", "tooltip");
@@ -163,14 +163,9 @@ async function populateMemberList(data) {
         }
         var stacked = document.createElement("div");
         stacked.classList.add("progress-stacked");
-        if (wwd > 0) {
-            stacked.appendChild(createMedalBar(factors["deWeight"], 4 * wwd, member["participation"]["decks"], "text-bg-pimary", "Weekly War Decks: "));
-            stacked.appendChild(createMedalBar(factors["meWeight"], factors["meTop"], member["participation"]["medals"], "text-bg-danger", "Weekly War Medals: "));
-            stacked.appendChild(createMedalBar(factors["doWeight"], factors["doTop"], member["participation"]["donos"], "text-bg-success", "Weekly Donations: "));
-        }
-        else {
-            stacked.appendChild(createMedalBar(1, factors["doTop"], member["participation"]["donos"], "text-bg-success", "Weekly Donations: "));
-        }
+        stacked.appendChild(createMedalBar(factors["deWeight"], 4 * wwd, member["participation"]["decks"], "text-bg-pimary", "Weekly War Decks: "));
+        stacked.appendChild(createMedalBar(factors["meWeight"], factors["meTop"], member["participation"]["medals"], "text-bg-danger", "Weekly War Medals: "));
+        stacked.appendChild(createMedalBar(factors["doWeight"], factors["doTop"], member["participation"]["donos"], "text-bg-success", "Weekly Donations: "));
         info.appendChild(stacked);
     }
 
@@ -224,7 +219,6 @@ async function populateMemberList(data) {
             }
         }
     }
-    console.log(orderingSelector);
 
     //Get current ordering
     const order = data["ordering"][orderingSelector];
@@ -252,7 +246,7 @@ async function populateMemberList(data) {
         setTopCardInfo(cardTop, v["badges"][0], v["name"], v["tag"], v["trophies"]);
 
         helper.appendClassList(cardMid, ["card-body"]);
-        setMidCardInfo(cardMid, v, data["partFactors"], data["warWeekDay"]);
+        setMidCardInfo(cardMid, v, data["partFactors"], data["weekWarDay"]);
 
         helper.appendClassList(cardBot, ["card-footer"]);
         setBotCardInfo(cardBot, v["badges"]);
@@ -264,7 +258,6 @@ async function populateMemberList(data) {
         row.appendChild(card);
     }
     memberCanvas.appendChild(row);
-
     //Set spinner status to 'off' (invisible)
     setLoaderVisibility(false);
 }

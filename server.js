@@ -261,13 +261,13 @@ async function parseDataFromAPI() {
   
   parsedData["ordering"] = {
     "Participation High to Low": porder,
-    "Participation Low to High": porder.reverse(),
+    "Participation Low to High": porder.slice().reverse(),
     "Trophies High to Low": torder,
-    "Trophies Low to High": torder.reverse(),
+    "Trophies Low to High": torder.slice().reverse(),
     "Name A-Z": norder,
-    "Name Z-A": norder.reverse(),
+    "Name Z-A": norder.slice().reverse(),
     "Tag A-Z": tgorder,
-    "Tag Z-A": tgorder.reverse(),
+    "Tag Z-A": tgorder.slice().reverse(),
   };
 
   //write to file
