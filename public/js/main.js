@@ -175,10 +175,10 @@ async function populateMemberList(data) {
                 case "standing-good":
                     info.appendChild(generateBadge(["fa-solid", "fa-circle-check"], "", "btn-outline-success", "Good standing!"));
                     break;
-                case "status-warning":
+                case "standing-warning":
                     info.appendChild(generateBadge(["fa-solid", "fa-circle-exclamation"], "#ffbf00", "btn", "Not on track to hit medal quota."));
                     break;
-                case "status-violation":
+                case "standing-violation":
                     info.appendChild(generateBadge(["fa-solid", "fa-circle-exclamation"], "", "btn-danger", "Cannot meet medal quota."));
                     break;
                 case "ninek":
