@@ -261,7 +261,7 @@ async function populateMemberList(data, history) {
             parent.appendChild(canvas);
         }
 
-        const deckUsage = history["deckUseHistory"];
+        const deckUsage = history["deckUseHistory"].slice().reverse();
         const medalGains = history["fameHistory"];
 
         var graphs = document.createElement("div");
