@@ -11,7 +11,7 @@ const fs = require('fs');
 const app = new express();
 app.use(express.static(__dirname + '/public'));
 app.use(express.static(__dirname + "/node_modules/bootstrap/dist/"));
-app.use(express.static(__dirname + "/node_modules/bootstrap-icons/font"));
+app.use(express.static(__dirname + "/node_modules/chart.js/"));
 
 app.get('/', (req, res, next) => {
     res.sendFile(path.resolve(__dirname, 'public/index.html'));

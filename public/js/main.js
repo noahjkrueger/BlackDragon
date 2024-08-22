@@ -173,7 +173,7 @@ async function populateMemberList(data, history) {
         info.appendChild(trophiesDiv);
     }
 
-    function setMidCardInfo(info, member, factors, wwd) {
+    function setMidCard1Info(info, member, factors, wwd) {
         function createMedalBar(weight, max, value, theme, predesc) {
             var bar = document.createElement("div");
             bar.classList.add("progress-bar");
@@ -208,6 +208,68 @@ async function populateMemberList(data, history) {
         info.appendChild(stacked);
     }
 
+    function setMidCard2Info(info, history) {
+        function createGraph(parent, dataPoints, title, dataLineColor, averageLineColor, min, max) {
+            var canvas = document.createElement("canvas");
+            const average = dataPoints.reduce((sum, i) => {return sum + i}) / dataPoints.length;
+            const avgarr = Array(dataPoints.length).fill(0).map((_, i) => {return average;});
+            const labels = Array(dataPoints.length).fill().map((_, index) => `-${dataPoints.length-index} Wars`);
+            const data = {
+                labels: labels,
+                datasets: [
+                    {
+                        label: title,
+                        data: dataPoints,
+                        borderColor: dataLineColor,
+                        tension: 0.1
+                    },
+                    {
+                        label: `Average ${title}`,
+                        data: avgarr,
+                        borderColor: averageLineColor,
+                        tension: 0.1
+                    },
+                ]
+            }
+            const options = {
+                scales: {
+                    y: {
+                        suggestedMin: min,
+                        suggestedMax: max
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false,
+                    },
+                    title: {
+                        display: true,
+                        text: title,
+                        color: "#ffffff",
+                        padding: {
+                            top: 10,
+                            bottom: 30
+                        }
+                    }
+                }
+            }
+            new Chart(canvas, {
+                type: 'line',
+                data: data,
+                options: options
+            });
+            parent.appendChild(canvas);
+        }
+
+        const deckUsage = history["deckUseHistory"];
+        const medalGains = history["fameHistory"];
+
+        var graphs = document.createElement("div");
+        createGraph(graphs, deckUsage, "Deck Usage", "#0070ff", "#ffffff", 0, 16);
+        createGraph(graphs, medalGains, "Medals Earned", "#ff0000", "#ffffff", 0, 3600);
+        info.appendChild(graphs);
+    }
+
     function setBotCardInfo(info, badges) {
         for (const badge of badges) {
             info.appendChild(getBadge(badge));
@@ -233,14 +295,23 @@ async function populateMemberList(data, history) {
         var card = document.createElement("div");
         helper.appendClassList(card, ["member-card", "card", "text-bg-dark"]);
         var cardTop = document.createElement("div");
-        var cardMid = document.createElement("div");
+        var cardMid1 = document.createElement("div");
+        var cardMid2 = document.createElement("div");
         var cardBot = document.createElement("div");
 
         helper.appendClassList(cardTop, ["card-header"]);
         setTopCardInfo(cardTop, v["badges"][0], v["badges"][1], v["name"], v["tag"], v["trophies"]);
 
-        helper.appendClassList(cardMid, ["card-body"]);
-        setMidCardInfo(cardMid, v, data["partFactors"], data["weekWarDay"]);
+        helper.appendClassList(cardMid1, ["card-body"]);
+        setMidCard1Info(cardMid1, v, data["partFactors"], data["weekWarDay"]);
+
+        helper.appendClassList(cardMid2, ["card-body", "graphs-wrapper"]);
+        if (historyData[k]) {
+            setMidCard2Info(cardMid2, historyData[k]);
+        }
+        else {
+            setMidCard2Info(cardMid2, {"deckUseHistory":[0],"fameHistory":[0]});
+        }
 
         helper.appendClassList(cardBot, ["card-footer"]);
         var historyBadges = [];
@@ -249,10 +320,10 @@ async function populateMemberList(data, history) {
         } catch (e) {};
         setBotCardInfo(cardBot, historyBadges.concat(v["badges"].splice(2)));
 
-
         card.appendChild(cardTop);
-        card.appendChild(cardMid);
-        card.appendChild(cardBot);
+        card.appendChild(cardMid1);
+        card.appendChild(cardBot); // dont feel like renaming variables after I decided to reorder these
+        card.appendChild(cardMid2);
 
         row.appendChild(card);
     }
@@ -314,7 +385,7 @@ async function refreshData() {
 
 
 //links popup
-bootstrap.Toast.getOrCreateInstance(document.getElementById('liveToast')).show();
+bootstrap.Toast.getOrCreateInstance(document.getElementById('liveToast')).show();   
 
 refreshData();
 
