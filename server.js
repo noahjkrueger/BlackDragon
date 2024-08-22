@@ -171,7 +171,7 @@ async function parseDataFromAPI() {
     }
     //Determine if member is on track to hit quota or cannot hit quota
     if (value["warData"]["fame"] < (wwDay === 0 ? 0 : (parsedData["medalQuota"] / 4) * wwDay)) {
-      badges,push("standing-warning");
+      badges.push("standing-warning");
     }
     else {
       const toQuota = parsedData["medalQuota"] - value["warData"]["fame"];
@@ -240,25 +240,34 @@ async function parseDataFromAPI() {
   //create different orderings for displayin data client-side
   //add to parsed data. trophyOrder is the default order returned by API.
   //part: factor in maximums
+  var porder = Object.keys(clanMembers).sort((m1, m2) => {
+    var a = clanMembers[m1]["participation"];
+    var b = clanMembers[m2]["participation"];
+    var av = (a["wMedals"] / ctopMedals) + (a["wDonos"] / ctopDonations) + (a["wDecks"]);
+    var bv = (b["wMedals"] / ctopMedals) + (b["wDonos"] / ctopDonations) + (b["wDecks"]);
+    return av < bv ? 1 : (av === bv ? 0 : -1);
+  });
+  var torder = Object.keys(clanMembers);
+  var norder = Object.keys(clanMembers).sort((m1, m2) => {
+    var a = clanMembers[m1]["name"];
+    var b = clanMembers[m2]["name"];
+    return a != b ? (a < b ? -1 : 1) : 0;
+  });
+  var tgorder = Object.keys(clanMembers).sort((m1, m2) => {
+    var a = clanMembers[m1]["tag"];
+    var b = clanMembers[m2]["tag"];
+    return a != b ? (a < b ? -1 : 1) : 0;
+  });
+  
   parsedData["ordering"] = {
-    "Participation": Object.keys(clanMembers).sort((m1, m2) => {
-      var a = clanMembers[m1]["participation"];
-      var b = clanMembers[m2]["participation"];
-      var av = (a["wMedals"] / ctopMedals) + (a["wDonos"] / ctopDonations) + (a["wDecks"]);
-      var bv = (b["wMedals"] / ctopMedals) + (b["wDonos"] / ctopDonations) + (b["wDecks"]);
-      return av < bv ? 1 : (av === bv ? 0 : -1);
-    }),
-    "Trophies": Object.keys(clanMembers),
-    "Name": Object.keys(clanMembers).sort((m1, m2) => {
-      var a = clanMembers[m1]["name"];
-      var b = clanMembers[m2]["name"];
-      return a != b ? (a < b ? -1 : 1) : 0;
-    }),
-    "Tag": Object.keys(clanMembers).sort((m1, m2) => {
-      var a = clanMembers[m1]["tag"];
-      var b = clanMembers[m2]["tag"];
-      return a != b ? (a < b ? -1 : 1) : 0;
-    }),
+    "Participation High to Low": porder,
+    "Participation Low to High": porder.reverse(),
+    "Trophies High to Low": torder,
+    "Trophies Low to High": torder.reverse(),
+    "Name A-Z": norder,
+    "Name Z-A": norder.reverse(),
+    "Tag A-Z": tgorder,
+    "Tag Z-A": tgorder.reverse(),
   };
 
   //write to file
