@@ -4,7 +4,6 @@
 
 .card-header {
     display: flex;
-    background-color: #220000;
 }
 
 .card-header button {
@@ -19,11 +18,11 @@
 }
 
 .card-header-med {
-    flex: 1.5;
+    flex: 1.55;
 }
 
 .card-header-lg {
-    flex: 10;
+    flex: 9;
 }
 
 .custom-ratio {

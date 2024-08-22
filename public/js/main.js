@@ -262,7 +262,7 @@ async function populateMemberList(data, history) {
         }
 
         const deckUsage = history["deckUseHistory"].slice().reverse();
-        const medalGains = history["fameHistory"];
+        const medalGains = history["fameHistory"].slice().reverse();
 
         var graphs = document.createElement("div");
         createGraph(graphs, deckUsage, "Deck Usage", "#0070ff", "#ffffff", 0, 16);
