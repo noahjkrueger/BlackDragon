@@ -62,7 +62,7 @@ async function initOrderButton(orderingKeys) {
     select.onchange = () => {
         if (select.value != orderingSelector) {
             orderingSelector = select.value;
-            populateMemberList(data, history);
+            populateMemberList(data, historyData);
         }
     };
     orderingSelector = orderingKeys[0];
@@ -110,7 +110,7 @@ async function populateMemberList(data, history) {
             case "tanding-violation":
                 return generateBadge(["fa-solid", "fa-circle-exclamation"], "", "btn-danger", "Cannot meet medal quota.", "right");
             case "history-decks-12":
-                return generateBadge(["fa-solid", "fa-fire-flame-simple"], "", "btn-outline-primary", "Averages over 12 dDcks per week!");
+                return generateBadge(["fa-solid", "fa-fire-flame-simple"], "", "btn-outline-primary", "Averages over 12 Decks per week!");
             case "history-decks-16":
                 return generateBadge(["fa-solid", "fa-fire-flame-simple"], "", "btn-primary", "Averages 16 Decks per week!");
             case "history-medals-2000":

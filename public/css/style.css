@@ -17,7 +17,7 @@
 }
 
 .card-header-med {
-    flex: 1.35;
+    flex: 1.5;
 }
 
 .card-header-lg {
@@ -161,7 +161,7 @@ html {
     }
 
     .card-header-med {
-        flex: 3;
+        flex: 3.25;
     }
 
     .card-header i {
