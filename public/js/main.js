@@ -62,14 +62,14 @@ async function initOrderButton(orderingKeys) {
     select.onchange = () => {
         if (select.value != orderingSelector) {
             orderingSelector = select.value;
-            populateMemberList(data);
+            populateMemberList(data, history);
         }
     };
     orderingSelector = orderingKeys[0];
 }
 
 
-async function populateMemberList(data) {
+async function populateMemberList(data, history) {
     var memberCanvas = document.getElementById("member-canvas");
     memberCanvas.innerHTML = "";
     //Set spinner status to 'on' (visible)
@@ -93,25 +93,64 @@ async function populateMemberList(data) {
         return badge;
     }
 
-    function setTopCardInfo(info, status, name, tag, trophies) {
-        var statusDiv = document.createElement("div");
-        helper.appendClassList(statusDiv, ["card-header-sm"]);
-        switch (status) {
+    function getBadge(badge){
+        switch(badge) {
             case "leader":
-                statusDiv.appendChild(generateBadge(["fa-solid", "fa-chess-king"], "", "btn-light", "Crowned Dragon (Leader)", "right"));
-                break;
+                return generateBadge(["fa-solid", "fa-chess-king"], "", "btn-light", "Crowned Dragon (Leader)", "right");
             case "coleader":
-                statusDiv.appendChild(generateBadge(["fa-solid", "fa-fire"], "", "btn-outline-warning", "Ancient Dragon (Co-Leader)", "right"));
-                break;
+                return generateBadge(["fa-solid", "fa-fire"], "", "btn-outline-warning", "Ancient Dragon (Co-Leader)", "right");
             case "elder":
-                statusDiv.appendChild(generateBadge(["fa-solid", "fa-fire-flame-curved"], "#f59042", "btn", "Elder Dragon (Elder)", "right"));
-                break;
+                return generateBadge(["fa-solid", "fa-fire-flame-curved"], "#f59042", "btn", "Elder Dragon (Elder)", "right");
             case "member":
-                statusDiv.appendChild(generateBadge(["fa-solid", "fa-egg"], "#ffffff", "btn", "Baby Dragon (Member)", "right"));
-                break;
+                return generateBadge(["fa-solid", "fa-egg"], "#ffffff", "btn", "Baby Dragon (Member)", "right");
+            case "standing-good":
+                return generateBadge(["fa-solid", "fa-circle-check"], "", "btn-outline-success", "Good Standing!", "right");
+            case "standing-warning":
+                return generateBadge(["fa-solid", "fa-circle-exclamation"], "#ffbf00", "btn", "Not on track to hit medal quota.", "right");
+            case "tanding-violation":
+                return generateBadge(["fa-solid", "fa-circle-exclamation"], "", "btn-danger", "Cannot meet medal quota.", "right");
+            case "history-decks-12":
+                return generateBadge(["fa-solid", "fa-fire-flame-simple"], "", "btn-outline-primary", "Averages over 12 dDcks per week!");
+            case "history-decks-16":
+                return generateBadge(["fa-solid", "fa-fire-flame-simple"], "", "btn-primary", "Averages 16 Decks per week!");
+            case "history-medals-2000":
+                return generateBadge(["fa-solid", "fa-khanda"], "#ff0000", "btn", "Averages over 2000 Medals per Week!");
+            case "history-medals-2500":
+                return generateBadge(["fa-solid", "fa-khanda"], "", "btn-outline-danger", "Averages over 2500 Medals per week!");
+            case "history-medals-2750":
+                return generateBadge(["fa-solid", "fa-khanda"], "", "btn-danger", "Averages over 2750 Medals per week!");
+            case "ninek":
+                return generateBadge(["fa-solid", "fa-trophy"], "#ffe75c", "btn", "9000 Trophies!");
+            case "cr-vet":
+                return generateBadge(["fa-solid", "fa-clock"], "#00cff3", "btn", "Level 55+");
+            case "medals-threek":
+                return generateBadge(["fa-solid", "fa-dragon"], "", "btn-danger", "3000+ Weekly Medals!");
+            case "medals-twohalfk":
+                return generateBadge(["fa-solid", "fa-dragon"], "", "btn-outline-danger", "2500+ Weekly Medals!");
+            case "medals-twok":
+                return generateBadge(["fa-solid", "fa-dragon"], "#ff003e", "btn", "2000+ Weekly Medals!");
+            case "donations-onek":
+                return generateBadge(["fa-solid", "fa-gift"], "", "btn-success", "1000+ Weekly Donations!");
+            case "donations-sevenhalf":
+                return generateBadge(["fa-solid", "fa-gift"], "", "btn-outline-success", "750+ Weekly Donations!");
+            case "donations-five":
+                return generateBadge(["fa-solid", "fa-gift"], "#00a00d", "btn", "500+ Weekly Donations!");
+            case "decks-used-all":
+                return generateBadge(["fa-solid", "fa-copy"], "#0070ff", "btn", "All decks used today! (Includes training days)");
+            case "top-medalist":
+                return generateBadge(["fa-solid", "fa-hand-fist"], "", "btn-danger", "#1 War Week Medalist: " + data["partFactors"]["meTop"] + " medals!");
+            case "top-donor":
+                return generateBadge(["fa-solid", "fa-hand-holding-medical"], "", "btn-success", "#1 Weekly Donor: " + data["partFactors"]["doTop"] + " donations!");
             default:
                 break;
         }
+    }
+
+    function setTopCardInfo(info, role, status, name, tag, trophies) {
+        var statusDiv = document.createElement("div");
+        helper.appendClassList(statusDiv, ["card-header-med"]);
+        statusDiv.appendChild(getBadge(role));
+        statusDiv.appendChild(getBadge(status));
 
         var nameDiv = document.createElement("div");
         helper.appendClassList(nameDiv, ["card-header-lg"]);
@@ -125,7 +164,7 @@ async function populateMemberList(data) {
         nameDiv.appendChild(tagDiv);
 
         var trophiesDiv = document.createElement("div");
-        helper.appendClassList(trophiesDiv, ["card-header-med"]);
+        helper.appendClassList(trophiesDiv, ["card-header-sm"]);
         trophiesDiv.appendChild(helper.generateIcon(["fa-solid", "fa-trophy"], "#ffe75c"));
         trophiesDiv.innerHTML += trophies;
 
@@ -171,52 +210,7 @@ async function populateMemberList(data) {
 
     function setBotCardInfo(info, badges) {
         for (const badge of badges) {
-            switch(badge) {
-                case "standing-good":
-                    info.appendChild(generateBadge(["fa-solid", "fa-circle-check"], "", "btn-outline-success", "Good standing!"));
-                    break;
-                case "standing-warning":
-                    info.appendChild(generateBadge(["fa-solid", "fa-circle-exclamation"], "#ffbf00", "btn", "Not on track to hit medal quota."));
-                    break;
-                case "standing-violation":
-                    info.appendChild(generateBadge(["fa-solid", "fa-circle-exclamation"], "", "btn-danger", "Cannot meet medal quota."));
-                    break;
-                case "ninek":
-                    info.appendChild(generateBadge(["fa-solid", "fa-trophy"], "#ffe75c", "btn", "9000 Trophies!"));
-                    break;
-                case "cr-vet":
-                    info.appendChild(generateBadge(["fa-solid", "fa-clock"], "#00cff3", "btn", "Level 55+"));
-                    break;
-                case "medals-threek":
-                    info.appendChild(generateBadge(["fa-solid", "fa-dragon"], "", "btn-danger", "3000+ Weekly Medals!"));
-                    break;
-                case "medals-twohalfk":
-                    info.appendChild(generateBadge(["fa-solid", "fa-dragon"], "", "btn-outline-danger", "2500+ Weekly Medals!"));
-                    break;
-                case "medals-twok":
-                    info.appendChild(generateBadge(["fa-solid", "fa-dragon"], "#ff003e", "btn", "2000+ Weekly Medals!"));
-                    break;
-                case "donations-onek":
-                    info.appendChild(generateBadge(["fa-solid", "fa-gift"], "", "btn-success", "1000+ Weekly Donations!"));
-                    break;
-                case "donations-sevenhalf":
-                    info.appendChild(generateBadge(["fa-solid", "fa-gift"], "", "btn-outline-success", "750+ Weekly Donations!"));
-                    break;
-                case "donations-five":
-                    info.appendChild(generateBadge(["fa-solid", "fa-gift"], "#00a00d", "btn", "500+ Weekly Donations!"));
-                    break;
-                case "decks-used-all":
-                    info.appendChild(generateBadge(["fa-solid", "fa-copy"], "#0070ff", "btn", "All decks used today! (Includes training days)"));
-                    break;
-                case "top-medalist":
-                    info.appendChild(generateBadge(["fa-solid", "fa-hand-fist"], "", "btn-danger", "#1 War Medal Earner: " + data["partFactors"]["meTop"] + " medals!"));
-                    break;
-                case "top-donor":
-                    info.appendChild(generateBadge(["fa-solid", "fa-hand-holding-medical"], "", "btn-success", "#1 Donor: " + data["partFactors"]["doTop"] + " donations!"));
-                    break;
-                default:
-                    break;
-            }
+            info.appendChild(getBadge(badge));
         }
     }
 
@@ -243,13 +237,18 @@ async function populateMemberList(data) {
         var cardBot = document.createElement("div");
 
         helper.appendClassList(cardTop, ["card-header"]);
-        setTopCardInfo(cardTop, v["badges"][0], v["name"], v["tag"], v["trophies"]);
+        setTopCardInfo(cardTop, v["badges"][0], v["badges"][1], v["name"], v["tag"], v["trophies"]);
 
         helper.appendClassList(cardMid, ["card-body"]);
         setMidCardInfo(cardMid, v, data["partFactors"], data["weekWarDay"]);
 
         helper.appendClassList(cardBot, ["card-footer"]);
-        setBotCardInfo(cardBot, v["badges"]);
+        var historyBadges = [];
+        try {
+            historyBadges = history[v["tag"]]["historyBadges"];
+        } catch (e) {};
+        setBotCardInfo(cardBot, historyBadges.concat(v["badges"].splice(2)));
+
 
         card.appendChild(cardTop);
         card.appendChild(cardMid);
@@ -273,6 +272,7 @@ function setLoaderVisibility(visible) {
 }
 
 var data = null;
+var historyData = null;
 async function refreshData() {
     //Set spinner status to 'on' (visible)
     setLoaderVisibility(true);
@@ -289,6 +289,16 @@ async function refreshData() {
         return;
     }
 
+    //Get most recent historical data
+    try {
+        await fetch('./data/parsed_history.json').then((response) => {
+            return response.json();
+        }).then((json) => historyData = json);
+    } catch (e) {
+        window.alert(e);
+        return;
+    }
+
     //Initialize Order Button
     await initOrderButton(Object.keys(data["ordering"]));
 
@@ -296,7 +306,7 @@ async function refreshData() {
     await updateMetadata(dataTime, data["tag"].substring(1), data["members"], data["description"], data["clanScore"], data["clanWarTrophies"], data["donationsPerWeek"]);
 
     //Populate Member Data
-    await populateMemberList(data);
+    await populateMemberList(data, historyData);
 
     //Set spinner status to 'off' (invisible)
     setLoaderVisibility(false);

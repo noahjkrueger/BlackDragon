@@ -1,19 +1,23 @@
+.card-footer button {
+    margin-right: 0.2vw;
+}
+
 .card-header {
     display: flex;
 }
 
-.card-header i {
-    font-size: 1vw;
+.card-header button {
+    margin-right: 0.2vw;
 }
 
 .card-header-sm {
-    flex: 0.75;
-}
-
-.card-header-med {
     flex: 1.25;
     font-weight: 100;
     font-size: 60%;
+}
+
+.card-header-med {
+    flex: 1.35;
 }
 
 .card-header-lg {
@@ -153,11 +157,11 @@ html {
 
 @media (max-width: 800px) {
     .card-header-sm {
-        flex: 1.5;
+        flex: 2;
     }
 
     .card-header-med {
-        flex: 2;
+        flex: 3;
     }
 
     .card-header i {

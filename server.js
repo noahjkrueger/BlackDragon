@@ -32,16 +32,90 @@ const doWeight = 0.25;
 
 var fiveMinJob = new CronJob(
   '*/5 * * * *',
-  parseDataFromAPI,
+  parseCurrentData,
   null,
   true,
   "America/New_York"
 );
 
-async function parseDataFromAPI() {
-  process.stdout.write("Updating data!\n");
+var weekJob = new CronJob(
+  '0 6 * * 1',
+  parseHistoricalData,
+  null,
+  true,
+  "America/New_York"
+);
+
+async function spinUp() {
+  await parseHistoricalData();
+  await parseCurrentData();
+}
+
+async function parseHistoricalData() {
+  process.stdout.write("Updating 10 week historical data...\n");
+  var historyData = null;
+    //get data
+    try {
+      historyData = await update_war_history();
+    } catch (e) {
+      process.stdout.write(e + "\n");
+      return;
+    }
+    //only care about our clan lol
+    var parsedHistoryByTag = {};
+    for (const week of historyData["items"]) {
+      for (const elm of week["standings"]) {
+        const clan = elm["clan"];
+        if (clan["tag"] === `#${process.env.CLAN_TAG}`) {
+          for (const member of clan["participants"]) {
+            const tag = member["tag"];
+            if (!(tag in parsedHistoryByTag)) {
+              parsedHistoryByTag[tag] = {
+                "deckUseHistory": [member["decksUsed"]],
+                "fameHistory": [member["fame"]],
+                "historyBadges": []
+              };
+            }
+            else {
+              parsedHistoryByTag[tag]["deckUseHistory"].push(member["decksUsed"]);
+              parsedHistoryByTag[tag]["fameHistory"].push(member["fame"]);
+            }
+          }
+        }
+      }
+    }
+    //create tags
+    for (const [key, value] of Object.entries(parsedHistoryByTag)) {
+      const deckSum = value["deckUseHistory"].reduce((partialSum, a) => partialSum + a, 0);
+      const medalSum = value["fameHistory"].reduce((partialSum, a) => partialSum + a, 0);
+      const historyLength = value["deckUseHistory"].length;
+
+      const deckAvg = deckSum / historyLength;
+      if (deckAvg === 16) {
+        parsedHistoryByTag[key]["historyBadges"].push("history-decks-16");
+      } else if (deckAvg > 12) {
+        parsedHistoryByTag[key]["historyBadges"].push("history-decks-12");
+      }
+
+      const medalAvg = medalSum / historyLength;
+      if (medalAvg > 3000) {
+        parsedHistoryByTag[key]["historyBadges"].push("history-medals-2750");
+      } else if (medalAvg > 2500) {
+        parsedHistoryByTag[key]["historyBadges"].push("history-medals-2500");
+      }
+      else if (medalAvg > 2000) {
+        parsedHistoryByTag[key]["historyBadges"].push("history-medals-2000");
+      }
+    }
+    fs.writeFileSync('public/data/parsed_history.json', JSON.stringify(parsedHistoryByTag));
+    process.stdout.write("Historical Data updated!\n");
+}
+
+async function parseCurrentData() {
+  process.stdout.write("Updating current week data...\n");
   var clanData = null;
   var warData = null;
+
   //get data
   try {
     clanData = await update_clan_data();
@@ -272,6 +346,7 @@ async function parseDataFromAPI() {
 
   //write to file
   fs.writeFileSync('public/data/parsed_data.json', JSON.stringify(parsedData));
+  process.stdout.write("Current week data updated.\n");
 }
 
 
@@ -323,5 +398,15 @@ async function update_war_data() {
   return data;
 }
 
-//run job on app startup - workaround application host spin-down issue.
-parseDataFromAPI();
+async function update_war_history() {
+  var data = null;
+  try {
+    data = await queryAPI(`https://api.clashroyale.com/v1/clans/%23${process.env.CLAN_TAG}/riverracelog?limit=10`);
+  } catch (e) {
+    throw new Error(e);
+  };
+  return data;
+}
+
+//run jobs on app startup - workaround application host spin-down issue.
+spinUp();
