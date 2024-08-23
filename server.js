@@ -1,54 +1,117 @@
 require('three');
-//dotenv for hidden data strings
 require('dotenv').config();
 
-//setup express
+//setup express and start webapp
 const path = require('path');
 const express = require('express');
 const fs = require('fs');
-
-//setup express
 const app = new express();
 app.use(express.static(__dirname + '/public'));
 app.use(express.static(__dirname + "/node_modules/bootstrap/dist/"));
 app.use(express.static(__dirname + "/node_modules/chart.js/"));
-
 app.get('/', (req, res, next) => {
     res.sendFile(path.resolve(__dirname, 'public/index.html'));
 });
-
-//start webapp
 const port = process.env.PORT || 8080;
 app.listen(port, '0.0.0.0', () => {
     process.stdout.write(`Listening on port ${port}!\n`)
 });
 
-//CronJobs
+async function spinUp() {
+  await fiveMinFunc();
+  await weekFunc();
+}
+spinUp();
+
+//Set up cronjobs
 var CronJob = require('cron').CronJob;
 
-const meWeight = 0.55;
-const deWeight = 0.2;
-const doWeight = 0.25;
+async function fiveMinFunc() {
+  const cdata = await parseCurrentData();
+  await updateActivityTracking(cdata);
+}
 
-var fiveMinJob = new CronJob(
-  '*/5 * * * *',
-  parseCurrentData,
-  null,
-  true,
-  "America/New_York"
-);
+async function weekFunc() {
+  const hdata = await parseHistoricalData();
+}
 
-var weekJob = new CronJob(
-  '0 6 * * 1',
-  parseHistoricalData,
-  null,
-  true,
-  "America/New_York"
-);
+var fiveMinJob = new CronJob('*/5 * * * *', fiveMinFunc, null, true, "America/New_York");
+var weekJob = new CronJob('0 6 * * 1', weekFunc, null, true, "America/New_York");
 
-async function spinUp() {
-  await parseHistoricalData();
-  await parseCurrentData();
+//API query funciton
+async function queryAPI(requestURL) {
+  const response = await fetch(requestURL, {headers: {'Authorization': `Bearer ${process.env.API_KEY}`}});
+  switch (response.status) {
+      case 200:
+          break;
+      case 400:
+        throw new Error("API Request Error: Client provided incorrect parameters for the request.");
+      case 403:
+        throw new Error("API Request Error: Access denied, either because of missing/incorrect credentials or used API token does not grant access to the requested resource.");
+      case 404:
+        throw new Error("API Request Error: Resource was not found.");
+      case 429:
+        throw new Error("API Request Error: Request was throttled, because amount of requests was above the threshold defined for the used API token.");
+      case 500:
+        throw new Error("API Request Error: Unknown error happened when handling the request.");
+      case 503:
+        throw new Error("API Request Error: Service is temprorarily unavailable because of maintenance.");
+  }
+  var data = await response.json();
+  return data;
+}
+
+//Update functions
+async function update_clan_data() {
+  var data = null;
+  try {
+    data = await queryAPI(`https://api.clashroyale.com/v1/clans/%23${process.env.CLAN_TAG}`);
+  } catch (e) {throw new Error(e);};
+  return data;
+}
+
+async function update_war_data() {
+  var data = null;
+  try {
+    data = await queryAPI(`https://api.clashroyale.com/v1/clans/%23${process.env.CLAN_TAG}/currentriverrace`);
+  } catch (e) {throw new Error(e);};
+  return data;
+}
+
+async function update_war_history() {
+  var data = null;
+  try {
+    data = await queryAPI(`https://api.clashroyale.com/v1/clans/%23${process.env.CLAN_TAG}/riverracelog?limit=10`);
+  } catch (e) {throw new Error(e);};
+  return data;
+}
+
+async function updateActivityTracking(parsedData) {
+  process.stdout.write("Updating activity data...\n");
+  //Date object
+  const date = new Date();
+  const dayOfWeek = date.getDay();
+  //load data
+  var activityData = JSON.parse(fs.readFileSync('public/data/activity.json'));
+
+  //update last seen for current members
+  var updatedLastSeen = {};
+  for(const [k, v] of Object.entries(parsedData["memberList"])) {
+    updatedLastSeen[k] = v["lastSeen"];
+  }
+  //update day of week activity
+  for(const [k, v] of Object.entries(parsedData["memberList"])) {
+    const seen = v["lastSeen"];
+    if (k in activityData["lastSeen"]) {
+      if (activityData["lastSeen"][k] != seen) {
+        activityData[`day-${dayOfWeek}`].push(seen);
+      }
+    }
+  }
+  activityData["lastSeen"] = updatedLastSeen;
+  fs.writeFileSync('public/data/activity.json', JSON.stringify(activityData));
+  process.stdout.write("Activity Data updated!\n");
+  return activityData;
 }
 
 async function parseHistoricalData() {
@@ -109,10 +172,16 @@ async function parseHistoricalData() {
     }
     fs.writeFileSync('public/data/parsed_history.json', JSON.stringify(parsedHistoryByTag));
     process.stdout.write("Historical Data updated!\n");
+    return parsedHistoryByTag;
 }
 
 async function parseCurrentData() {
   process.stdout.write("Updating current week data...\n");
+
+  const meWeight = 0.55;
+  const deWeight = 0.2;
+  const doWeight = 0.25;
+
   var clanData = null;
   var warData = null;
 
@@ -347,66 +416,5 @@ async function parseCurrentData() {
   //write to file
   fs.writeFileSync('public/data/parsed_data.json', JSON.stringify(parsedData));
   process.stdout.write("Current week data updated.\n");
+  return parsedData;
 }
-
-
-//API query funciton
-async function queryAPI(requestURL) {
-  const response = await fetch(requestURL, {
-    headers: {
-      'Authorization': `Bearer ${process.env.API_KEY}`
-    }
-  });
-  switch (response.status) {
-      case 200:
-          break;
-      case 400:
-        throw new Error("API Request Error: Client provided incorrect parameters for the request.");
-      case 403:
-        throw new Error("API Request Error: Access denied, either because of missing/incorrect credentials or used API token does not grant access to the requested resource.");
-      case 404:
-        throw new Error("API Request Error: Resource was not found.");
-      case 429:
-        throw new Error("API Request Error: Request was throttled, because amount of requests was above the threshold defined for the used API token.");
-      case 500:
-        throw new Error("API Request Error: Unknown error happened when handling the request.");
-      case 503:
-        throw new Error("API Request Error: Service is temprorarily unavailable because of maintenance.");
-  }
-  var data = await response.json();
-  return data;
-}
-
-
-async function update_clan_data() {
-  var data = null;
-  try {
-    data = await queryAPI(`https://api.clashroyale.com/v1/clans/%23${process.env.CLAN_TAG}`);
-  } catch (e) {
-      throw new Error(e);
-  };
-  return data;
-}
-
-async function update_war_data() {
-  var data = null;
-  try {
-    data = await queryAPI(`https://api.clashroyale.com/v1/clans/%23${process.env.CLAN_TAG}/currentriverrace`);
-  } catch (e) {
-    throw new Error(e);
-  };
-  return data;
-}
-
-async function update_war_history() {
-  var data = null;
-  try {
-    data = await queryAPI(`https://api.clashroyale.com/v1/clans/%23${process.env.CLAN_TAG}/riverracelog?limit=10`);
-  } catch (e) {
-    throw new Error(e);
-  };
-  return data;
-}
-
-//run jobs on app startup - workaround application host spin-down issue.
-spinUp();

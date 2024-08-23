@@ -20,6 +20,93 @@ const helper = new DocumentHelper();
 var popoverList = [];
 var orderingSelector = "";
 
+function updateActivityMap(activity) {
+    var canvas = document.getElementById("metadata-activity-map");
+    var points = [];
+    for (const i in [0, 1, 2, 3, 4, 5, 6]) {
+        for (const p of activity[`day-${i}`]) {
+            const hour = parseInt(p.substring(9, 11));
+            const minute = parseInt(p.substring(11, 13)) / 60;
+            points.push({x: i, y: hour + minute});
+        }
+    }
+    const data = {
+        datasets: [{
+          label: 'Scatter Dataset',
+          data: points,
+          backgroundColor: '#ff0000'
+        }],
+      };
+      const options = {
+        elements: {
+            point: {
+                radius: 10,
+            },
+        },
+        scales: {
+            x: {
+                ticks: {
+                    callback: function(value, index, ticks) {
+                        const day = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+                        return day[value];
+                    },
+                    color: "#ffffff"
+                },
+                suggestedMin: 0,
+                suggestedMax: 6,
+                grid: {
+                    display: true,
+                    color: "#999999"
+                  }
+
+            },
+            y: {
+                ticks: {
+                    callback: function(value, index, ticks) {
+                        const time = Array(24).fill().map((_, index) => `${index}:00`);
+                        return time[value];
+                    },
+                    color: "#999999"
+                },
+                suggestedMin: 0,
+                suggestedMax: 24,
+                grid: {
+                    display: true,
+                    color: "#ffffff"
+                  }
+            },
+        },
+        plugins: {
+            legend: {
+                display: false,
+            },
+            title: {
+                display: true,
+                text: "Active Hours (GMT)",
+                color: "#ffffff",
+                padding: {
+                    top: 10,
+                    bottom: 20
+                },
+                font: {
+                    size: 30,
+                    weight: 600,
+                    family:"'Courier New'"
+                }
+            },
+            tooltip: {
+                enabled: false,
+            }
+        }
+    }
+      const config = {
+        type: 'scatter',
+        data: data,
+        options: options
+      };
+      new Chart(canvas, config);
+}
+
 function updateMetadata(updateTime, clanTag, clanMembers, clanDescription, clanScore, clanTrophies, clanDonations) {
     function updateItem(id, classlist, color, appendText) {
         var elm = document.getElementById(id);
@@ -344,6 +431,7 @@ function setLoaderVisibility(visible) {
 
 var data = null;
 var historyData = null;
+var activityData = null;
 async function refreshData() {
     //Set spinner status to 'on' (visible)
     setLoaderVisibility(true);
@@ -370,11 +458,24 @@ async function refreshData() {
         return;
     }
 
+    //Get most recent activity data
+    try {
+        await fetch('./data/activity.json').then((response) => {
+            return response.json();
+        }).then((json) => activityData = json);
+    } catch (e) {
+        window.alert(e);
+        return;
+    }
+
     //Initialize Order Button
     await initOrderButton(Object.keys(data["ordering"]));
 
     //Update the top of the webapp with clan metadata
     await updateMetadata(dataTime, data["tag"].substring(1), data["members"], data["description"], data["clanScore"], data["clanWarTrophies"], data["donationsPerWeek"]);
+
+    //Update activity graph
+    await updateActivityMap(activityData);
 
     //Populate Member Data
     await populateMemberList(data, historyData);

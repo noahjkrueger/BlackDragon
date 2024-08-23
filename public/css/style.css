@@ -96,9 +96,7 @@ html {
     margin: 0;
     padding: 0;
     -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
-    background-color: #000;
-}
+    scrollbar-width: none;  /* Firefox */}
 
 .member-row {
     width: 100vw;
@@ -133,6 +131,13 @@ html {
     font-family:'Courier New', Courier, monospace;
 }
 
+.metadata-activity-map {
+    background-color: #1b2024;
+    width: 80vw;
+    margin: auto;
+    border-radius: 1rem;
+}
+
 .metadata-clan a {
     cursor: pointer;
 }
@@ -149,7 +154,7 @@ html {
     flex: 0.75;
 }
 
-.metadate-date-time {
+.metadata-date-time {
     margin-top: 1.5vh;
     color: #fff;
     font-family:'Courier New', Courier, monospace;
@@ -178,6 +183,10 @@ html {
         margin: auto;
         margin-bottom: 2vh;
         font-size: 5vw;
+    }
+
+    .metadata-activity-map {
+        width: 90vw;
     }
 
     .metadata-clan {
