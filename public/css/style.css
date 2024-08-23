@@ -96,7 +96,8 @@ html {
     margin: 0;
     padding: 0;
     -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */}
+    scrollbar-width: none;  /* Firefox */
+}
 
 .member-row {
     width: 100vw;
@@ -131,11 +132,20 @@ html {
     font-family:'Courier New', Courier, monospace;
 }
 
+.metadata-activity-container {
+    position: relative;
+    margin: auto;
+    width: 98vw;
+    overflow: auto;
+}
+
 .metadata-activity-map {
     background-color: #1b2024;
-    width: 80vw;
+    border-radius: 0.5rem;
+    width: 98vw;
     margin: auto;
-    border-radius: 1rem;
+    margin-bottom: 2vh;
+    padding: 1vw;
 }
 
 .metadata-clan a {
@@ -186,7 +196,8 @@ html {
     }
 
     .metadata-activity-map {
-        width: 90vw;
+        margin-left: 1vw;
+        width: 300vw;
     }
 
     .metadata-clan {

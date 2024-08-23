@@ -27,7 +27,7 @@ function updateActivityMap(activity) {
         for (const p of activity[`day-${i}`]) {
             const hour = parseInt(p.substring(9, 11));
             const minute = parseInt(p.substring(11, 13)) / 60;
-            points.push({x: i, y: hour + minute});
+            points.push({x: i, y: 2 * hour + minute});
         }
     }
     const data = {
@@ -40,7 +40,8 @@ function updateActivityMap(activity) {
       const options = {
         elements: {
             point: {
-                radius: 10,
+                radius: 20,
+                pointStyle: 'rectRot',
             },
         },
         scales: {
@@ -52,24 +53,21 @@ function updateActivityMap(activity) {
                     },
                     color: "#ffffff"
                 },
-                suggestedMin: 0,
-                suggestedMax: 6,
-                grid: {
-                    display: true,
-                    color: "#999999"
-                  }
+                min: 0,
+                max: 6,
 
             },
             y: {
                 ticks: {
                     callback: function(value, index, ticks) {
-                        const time = Array(24).fill().map((_, index) => `${index}:00`);
+                        var h = 0;
+                        const time = Array(48).fill().map((_, i) => {if (i % 2 === 0){h+=1; return`${h-1}:00`}return `${h-1}:30`});
                         return time[value];
                     },
                     color: "#999999"
                 },
-                suggestedMin: 0,
-                suggestedMax: 24,
+                min: 0,
+                max: 48,
                 grid: {
                     display: true,
                     color: "#ffffff"
@@ -82,6 +80,7 @@ function updateActivityMap(activity) {
             },
             title: {
                 display: true,
+                align: "start",
                 text: "Active Hours (GMT)",
                 color: "#ffffff",
                 padding: {
@@ -89,13 +88,22 @@ function updateActivityMap(activity) {
                     bottom: 20
                 },
                 font: {
-                    size: 30,
                     weight: 600,
                     family:"'Courier New'"
                 }
             },
             tooltip: {
-                enabled: false,
+                callbacks: {
+                    label: function(context) {
+                        let label = "Member Logon: ";
+                        if (context.parsed.y !== null) {
+                            var time = String(context.parsed.y / 2).substring(0, 5).replace(".", ":");
+                            if(time.length === 4) {time+="0"} else if (time.length === 2) {time+=":00"}
+                            label+=time;
+                        }
+                        return label;
+                    }
+                }
             }
         }
     }
