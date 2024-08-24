@@ -40,7 +40,7 @@ function updateActivityMap(activity) {
       const options = {
         elements: {
             point: {
-                radius: 20,
+                radius: 5,
                 pointStyle: 'rectRot',
             },
         },
