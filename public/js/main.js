@@ -27,7 +27,7 @@ async function updateActivityMap(activity) {
         for (const p of activity[`day-${i}`]) {
             const hour = parseInt(p.substring(9, 11));
             const minute = parseInt(p.substring(11, 13)) / 60;
-            points.push({x: i, y: 2 * hour + minute});
+            points.push({y: i, x: 2 * (hour + minute)});
         }
     }
     const data = {
@@ -38,35 +38,42 @@ async function updateActivityMap(activity) {
         }],
       };
       const options = {
-        responsive: true,
-        maintainAspectRatio: false,
-        elements: {
-            point: {
-                radius: 5,
-                pointStyle: 'rectRot',
-            },
+            clip: false,
+            elements: {
+                point: {
+                    radius: 3,
+                    pointStyle: 'rectRot',
+                },
+                layout: {
+                    padding: 10,
+                    backgroundColor: "#ffffff",
+                }
         },
         scales: {
-            x: {
+            y: {
                 ticks: {
                     callback: function(value, index, ticks) {
                         const day = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
                         return day[value];
                     },
-                    color: "#ffffff"
+                    color: "#ffffff",
+                    autoSkip: false,
+                    maxTicksLimit: 7
                 },
                 min: 0,
                 max: 6,
 
             },
-            y: {
+            x: {
                 ticks: {
                     callback: function(value, index, ticks) {
                         var h = 0;
                         const time = Array(48).fill().map((_, i) => {if (i % 2 === 0){h+=1; return`${h-1}:00`}return `${h-1}:30`});
                         return time[value];
                     },
-                    color: "#999999"
+                    color: "#ffffff",
+                    autoSkip: false,
+                    maxTicksLimit: 48
                 },
                 min: 0,
                 max: 48,
@@ -98,11 +105,12 @@ async function updateActivityMap(activity) {
             tooltip: {
                 callbacks: {
                     label: function(context) {
-                        let label = "Member Logon: ";
-                        if (context.parsed.y !== null) {
-                            var time = String(context.parsed.y / 2).substring(0, 5).replace(".", ":");
-                            if(time.length === 4) {time+="0"} else if (time.length === 2) {time+=":00"}
-                            label+=time;
+                        let label = "";
+                        if (context.parsed.x !== null) {
+                            const x = context.parsed.x / 2;
+                            var time = Math.floor(x) + + (Math.ceil((x % 1) * 60) / 100);
+                            var timeStr = String(time).replace(".", ":");
+                            label+=timeStr;
                         }
                         return label;
                     }
