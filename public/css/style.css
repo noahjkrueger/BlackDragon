@@ -134,17 +134,10 @@ html {
 
 .metadata-activity-container {
     position: relative;
-    margin: auto;
-    width: 98vw;
-    overflow: auto;
+    overflow-x: scroll;
 }
 
 .metadata-activity-map {
-    background-color: #1b2024;
-    border-radius: 0.5rem;
-    width: 98vw;
-    margin: auto;
-    margin-bottom: 2vh;
     padding: 1vw;
 }
 
@@ -193,6 +186,10 @@ html {
         margin: auto;
         margin-bottom: 2vh;
         font-size: 5vw;
+    }
+
+    .metadata-activity-container {
+        width: 98vw;
     }
 
     .metadata-activity-map {

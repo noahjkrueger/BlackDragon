@@ -20,7 +20,7 @@ const helper = new DocumentHelper();
 var popoverList = [];
 var orderingSelector = "";
 
-function updateActivityMap(activity) {
+async function updateActivityMap(activity) {
     var canvas = document.getElementById("metadata-activity-map");
     var points = [];
     for (const i in [0, 1, 2, 3, 4, 5, 6]) {
@@ -38,6 +38,8 @@ function updateActivityMap(activity) {
         }],
       };
       const options = {
+        responsive: true,
+        maintainAspectRatio: false,
         elements: {
             point: {
                 radius: 5,
@@ -89,7 +91,8 @@ function updateActivityMap(activity) {
                 },
                 font: {
                     weight: 600,
-                    family:"'Courier New'"
+                    family:"'Courier New'",
+                    size: 25,
                 }
             },
             tooltip: {
@@ -165,8 +168,6 @@ async function initOrderButton(orderingKeys) {
 
 
 async function populateMemberList(data, history) {
-    var memberCanvas = document.getElementById("member-canvas");
-    memberCanvas.innerHTML = "";
     //Set spinner status to 'on' (visible)
     setLoaderVisibility(true);
 
@@ -370,13 +371,17 @@ async function populateMemberList(data, history) {
             info.appendChild(getBadge(badge));
         }
     }
+    
+    var memberCanvas = document.getElementById("member-canvas");
+    const activityHTML = document.getElementById("first-member-row").outerHTML;
+    memberCanvas.innerHTML = activityHTML;
 
     //Get current ordering
     const order = data["ordering"][orderingSelector];
     const members = data["memberList"];
 
-    var cardInRow = 0;
-    var row = document.createElement("div");
+    var cardInRow = 2;
+    var row = document.getElementById("first-member-row");
     for (const k of order) {
         const v = members[k];
         if (cardInRow === 0) {
@@ -482,11 +487,11 @@ async function refreshData() {
     //Update the top of the webapp with clan metadata
     await updateMetadata(dataTime, data["tag"].substring(1), data["members"], data["description"], data["clanScore"], data["clanWarTrophies"], data["donationsPerWeek"]);
 
-    //Update activity graph
-    await updateActivityMap(activityData);
-
     //Populate Member Data
     await populateMemberList(data, historyData);
+
+    //Update activity graph
+    await updateActivityMap(activityData);
 
     //Set spinner status to 'off' (invisible)
     setLoaderVisibility(false);
