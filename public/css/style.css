@@ -105,13 +105,14 @@ html {
 }
 
 .member-card {
-    width: 32.25vw;
-    margin-left: 1vw;
-    margin-bottom: 1vw;
+    width: 80vw;
+    margin-left: 0.5vw;
+    margin-bottom: 0.5vw;
     color: #fff;
     font-weight: 600;
     font-family:'Courier New', Courier, monospace;
     font-size: 1.25vw;
+    overflow: hidden;
 }
 
 .member-tag-link {
@@ -133,8 +134,13 @@ html {
 }
 
 .metadata-activity-container {
-    position: relative;
-    overflow-x: scroll;
+    overflow: scroll;
+    -ms-overflow-style: none;  /* Internet Explorer 10+ */
+    scrollbar-width: none;  /* Firefox */
+}
+
+.metadata-activity-container::-webkit-scrollbar { 
+    display: none;  /* Safari and Chrome */
 }
 
 .metadata-activity-map {
