@@ -21,109 +21,110 @@ var popoverList = [];
 var orderingSelector = "";
 
 async function updateActivityMap(activity) {
-    var canvas = document.getElementById("metadata-activity-map");
-    var points = [];
-    for (const i in [0, 1, 2, 3, 4, 5, 6]) {
-        for (const p of activity[`day-${i}`]) {
-            const hour = parseInt(p.substring(9, 11));
-            const minute = parseInt(p.substring(11, 13)) / 60;
-            points.push({y: i, x: 2 * (hour + minute)});
+    function zArray(day) {
+        function parseTime(timeStr) {
+            const hr = parseInt(timeStr.substring(9, 11));
+            const min = parseInt(timeStr.substring(11, 13)) / 60;
+            return hr + min;
         }
+        var zArr = Array(96).fill().map((_, index) => 0);
+        for (i=0; i<day.length; i+=1) {
+            const t = parseTime(day[i]);
+            zArr[Math.floor(t / 0.25)] += 1;
+        }
+        return zArr;
     }
-    const data = {
-        datasets: [{
-          label: 'Scatter Dataset',
-          data: points,
-          backgroundColor: '#ff0000'
-        }],
-      };
-      const options = {
-            clip: false,
-            elements: {
-                point: {
-                    radius: 3,
-                    pointStyle: 'rectRot',
-                },
-                layout: {
-                    padding: 10,
-                    backgroundColor: "#ffffff",
-                }
+    //20240829T053941.000Z
+    var labels = [];
+    for (var i=0; i<23; i+=1) {
+        labels.push(i+":00");
+        labels.push(i+":15");
+        labels.push(i+":30");
+        labels.push(i+":45");
+    }
+    labels.push("24:00");
+    document.getElementById("metadata-activity-map").innerHTML = "";
+    var options = {
+        plotOptions: {
         },
-        scales: {
-            y: {
-                ticks: {
-                    callback: function(value, index, ticks) {
-                        const day = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
-                        return day[value];
-                    },
-                    color: "#ffffff",
-                    autoSkip: false,
-                    maxTicksLimit: 7
-                },
-                min: 0,
-                max: 6,
-
+        series: [
+            {
+                name: 'Sunday',
+                data: zArray(activity["day-0"])
             },
-            x: {
-                ticks: {
-                    callback: function(value, index, ticks) {
-                        var h = 0;
-                        const time = Array(48).fill().map((_, i) => {if (i % 2 === 0){h+=1; return`${h-1}:00`}return `${h-1}:30`});
-                        return time[value];
-                    },
-                    color: "#ffffff",
-                    autoSkip: false,
-                    maxTicksLimit: 48
-                },
-                min: 0,
-                max: 48,
-                grid: {
-                    display: true,
-                    color: "#ffffff"
-                  }
+            {
+                name: 'Monday',
+                data: zArray(activity["day-1"])
             },
-        },
-        plugins: {
-            legend: {
-                display: false,
+            {
+                name: 'Tuesday',
+                data: zArray(activity["day-2"])
             },
-            title: {
-                display: true,
-                align: "start",
-                text: "Active Hours (GMT)",
-                color: "#ffffff",
-                padding: {
-                    top: 10,
-                    bottom: 20
-                },
-                font: {
-                    weight: 600,
-                    family:"'Courier New'",
-                    size: 25,
-                }
+            {
+                name: 'Wednesday',
+                data: zArray(activity["day-3"])
             },
-            tooltip: {
-                callbacks: {
-                    label: function(context) {
-                        let label = "";
-                        if (context.parsed.x !== null) {
-                            const x = context.parsed.x / 2;
-                            var time = Math.floor(x) + + (Math.ceil((x % 1) * 60) / 100);
-                            var timeStr = String(time).replace(".", ":");
-                            label+=timeStr;
-                        }
-                        return label;
-                    }
-                }
+            {
+                name: 'Thursday',
+                data: zArray(activity["day-4"])
+            },
+            {
+                name: 'Friday',
+                data: zArray(activity["day-5"])
+            },
+            {
+                name: 'Saturday',
+                data: zArray(activity["day-6"])
+            },
+        ],
+        yaxis: {
+            labels: {
+                style: {
+                    fontFamily: "'Courier New, Courier, monospace",
+                    colors:  '#ffffff'
+                  },
             }
+        },
+        xaxis: {
+            categories: labels,
+            labels: {
+                style: {
+                    fontFamily: "'Courier New, Courier, monospace",
+                    colors:  '#ffffff'
+                  },
+            },
+            tickAmount: 24,
+
+        },
+        chart: {
+            height: 600,
+            type: 'heatmap',
+            toolbar: {
+                show: false,
+            }, 
+            animations: {
+                enabled: false,
+            },
+        },
+        colors: ["#000"],
+        title: {
+            text: "Active Hours",
+            style: {
+                fontSize: 30,
+                fontFamily: "'Courier New, Courier, monospace",
+                color:  '#ffffff'
+              },
+        },
+        tooltip: {
+            enabled: true,
+            theme: "dark"
+        },
+        dataLabels: {
+            enabled: false,
         }
-    }
-      const config = {
-        type: 'scatter',
-        data: data,
-        options: options
-      };
-      new Chart(canvas, config);
+    };
+    var chart = new ApexCharts(document.getElementById("metadata-activity-map"), options);
+    chart.render();
 }
 
 function updateMetadata(updateTime, clanTag, clanMembers, clanDescription, clanScore, clanTrophies, clanDonations) {
@@ -314,64 +315,86 @@ async function populateMemberList(data, history) {
 
     function setMidCard2Info(info, history) {
         function createGraph(parent, dataPoints, title, dataLineColor, averageLineColor, min, max) {
-            var canvas = document.createElement("canvas");
+            var g = document.createElement("div");
+            parent.appendChild(g);
             const average = dataPoints.reduce((sum, i) => {return sum + i}) / dataPoints.length;
             const avgarr = Array(dataPoints.length).fill(0).map((_, i) => {return average;});
             const labels = Array(dataPoints.length).fill().map((_, index) => `-${dataPoints.length-index} Wars`);
-            const data = {
-                labels: labels,
-                datasets: [
+            var options = {
+                series: [
                     {
-                        label: title,
-                        data: dataPoints,
-                        borderColor: dataLineColor,
-                        tension: 0.1
+                        name: 'Average',
+                        data: avgarr
                     },
                     {
-                        label: `Average ${title}`,
-                        data: avgarr,
-                        borderColor: averageLineColor,
-                        tension: 0.1
+                        name: title,
+                        data: dataPoints
                     },
-                ]
-            }
-            const options = {
-                scales: {
-                    y: {
-                        suggestedMin: min,
-                        suggestedMax: max
+                ],
+                chart: {
+                    height: 200,
+                    type: 'line',
+                    toolbar: {
+                        show: false,
+                    },           
+                },
+                yaxis: {
+                    decimalsInFloat: 0,
+                    min: min,
+                    max: max,
+                    labels: {
+                        style: {
+                            fontFamily: "'Courier New, Courier, monospace",
+                            colors:  '#ffffff'
+                          },
                     }
                 },
-                plugins: {
-                    legend: {
-                        display: false,
-                    },
-                    title: {
-                        display: true,
-                        text: title,
-                        color: "#ffffff",
-                        padding: {
-                            top: 10,
-                            bottom: 30
-                        }
+                xaxis: {
+                    categories: labels,
+                    labels: {
+                        style: {
+                            fontFamily: "'Courier New, Courier, monospace",
+                            colors:  '#ffffff'
+                          },
                     }
+                },
+                colors: [averageLineColor, dataLineColor],
+                title: {
+                    text: title,
+                    style: {
+                        fontFamily: "'Courier New, Courier, monospace",
+                        color:  '#ffffff'
+                      },
+                },
+                legend: {
+                    show: false
+                },
+                grid: {
+                    show: false,
+                },
+                tooltip: {
+                    enabled: true,
+                    theme: "dark"
+                },
+                markers: {
+                    size: 1,
+                },
+                stroke: {
+                    width: 4,
                 }
-            }
-            new Chart(canvas, {
-                type: 'line',
-                data: data,
-                options: options
-            });
-            parent.appendChild(canvas);
+                  
+            };
+            var chart = new ApexCharts(g, options);
+            chart.render();
         }
 
         const deckUsage = history["deckUseHistory"].slice().reverse();
         const medalGains = history["fameHistory"].slice().reverse();
-
         var graphs = document.createElement("div");
+        info.appendChild(graphs);
         createGraph(graphs, deckUsage, "Deck Usage", "#0070ff", "#ffffff", 0, 16);
         createGraph(graphs, medalGains, "Medals Earned", "#ff0000", "#ffffff", 0, 3600);
-        info.appendChild(graphs);
+        window.dispatchEvent(new Event("resize")); //weird ApexChart quirk workaround
     }
 
     function setBotCardInfo(info, badges) {

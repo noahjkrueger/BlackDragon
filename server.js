@@ -8,7 +8,6 @@ const fs = require('fs');
 const app = new express();
 app.use(express.static(__dirname + '/public'));
 app.use(express.static(__dirname + "/node_modules/bootstrap/dist/"));
-app.use(express.static(__dirname + "/node_modules/chart.js/"));
 app.get('/', (req, res, next) => {
     res.sendFile(path.resolve(__dirname, 'public/index.html'));
 });
@@ -355,11 +354,9 @@ async function parseCurrentData() {
     //donations
     if(value["donations"] > 1000) {
       badges.push("donations-onek");
-    }
-    if(value["donations"] > 750) {
+    } else if(value["donations"] > 750) {
       badges.push("donations-sevenhalf");
-    }
-    if(value["donations"] > 500) {
+    } else if(value["donations"] > 500) {
       badges.push("donations-five");
     }
     //all daily war decks used badge
