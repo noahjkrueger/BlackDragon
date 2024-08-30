@@ -27,16 +27,15 @@ async function updateActivityMap(activity) {
             const min = parseInt(timeStr.substring(11, 13)) / 60;
             return hr + min;
         }
-        var zArr = Array(96).fill().map((_, index) => 0);
+        var zArr = Array(97).fill().map((_, index) => 0);
         for (i=0; i<day.length; i+=1) {
             const t = parseTime(day[i]);
             zArr[Math.floor(t / 0.25)] += 1;
         }
         return zArr;
     }
-    //20240829T053941.000Z
     var labels = [];
-    for (var i=0; i<23; i+=1) {
+    for (var i=0; i<24; i+=1) {
         labels.push(i+":00");
         labels.push(i+":15");
         labels.push(i+":30");
@@ -46,6 +45,42 @@ async function updateActivityMap(activity) {
     document.getElementById("metadata-activity-map").innerHTML = "";
     var options = {
         plotOptions: {
+            heatmap: {
+                colorScale: {
+                    ranges: [
+                        {
+                            from: 0,
+                            to: 0,
+                            color: '#212224',
+                        },
+                        {
+                            from: 1,
+                            to: 2,
+                            color: '#462022',
+                        },
+                        {
+                            from: 3,
+                            to: 5,
+                            color: '#6B1F20',
+                        },
+                        {
+                            from: 6,
+                            to: 8,
+                            color: '#8F1D1E',
+                        },
+                        {
+                            from: 9,
+                            to: 11,
+                            color: '#B41C1C',
+                        },
+                        {
+                            from: 11,
+                            to: Infinity,
+                            color: '#D91A1A',
+                        },
+                    ]
+                }
+            }
         },
         series: [
             {
@@ -97,7 +132,8 @@ async function updateActivityMap(activity) {
 
         },
         chart: {
-            height: 600,
+            height: 275,
+            nodeBGColor: '#000',
             type: 'heatmap',
             toolbar: {
                 show: false,
@@ -106,22 +142,13 @@ async function updateActivityMap(activity) {
                 enabled: false,
             },
         },
-        colors: ["#000"],
-        title: {
-            text: "Active Hours",
-            style: {
-                fontSize: 30,
-                fontFamily: "'Courier New, Courier, monospace",
-                color:  '#ffffff'
-              },
-        },
         tooltip: {
             enabled: true,
             theme: "dark"
         },
         dataLabels: {
             enabled: false,
-        }
+        },
     };
     var chart = new ApexCharts(document.getElementById("metadata-activity-map"), options);
     chart.render();
@@ -404,22 +431,20 @@ async function populateMemberList(data, history) {
     }
     
     var memberCanvas = document.getElementById("member-canvas");
-    const activityHTML = document.getElementById("first-member-row").outerHTML;
-    memberCanvas.innerHTML = activityHTML;
 
     //Get current ordering
     const order = data["ordering"][orderingSelector];
     const members = data["memberList"];
 
-    var cardInRow = 2;
-    var row = document.getElementById("first-member-row");
+    var cardInRow = 0;
+    var row = null;
     for (const k of order) {
         const v = members[k];
         if (cardInRow === 0) {
-            cardInRow = 3;
-            memberCanvas.appendChild(row);
+            cardInRow = 3; //how many cards per row
             row = document.createElement("div");
             helper.appendClassList(row, ["member-row"]);
+            memberCanvas.appendChild(row);
         }
         cardInRow-=1;
 
