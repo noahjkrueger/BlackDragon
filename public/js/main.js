@@ -431,6 +431,7 @@ async function populateMemberList(data, history) {
     }
     
     var memberCanvas = document.getElementById("member-canvas");
+    memberCanvas.innerHTML = "";
 
     //Get current ordering
     const order = data["ordering"][orderingSelector];
@@ -558,6 +559,3 @@ async function refreshData() {
 bootstrap.Toast.getOrCreateInstance(document.getElementById('liveToast')).show();   
 
 refreshData();
-
-//Set auto-refresh loop 300 * 1000 milliseconds (5 minutes)
-setInterval(refreshData, 300000);
