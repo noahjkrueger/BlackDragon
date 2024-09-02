@@ -20,7 +20,7 @@ async function spinUp() {
   await fiveMinFunc();
   await weekFunc();
 }
-// spinUp();
+spinUp();
 
 //Set up cronjobs
 var CronJob = require('cron').CronJob;
