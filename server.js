@@ -160,13 +160,13 @@ async function parseHistoricalData() {
       }
 
       const medalAvg = medalSum / historyLength;
-      if (medalAvg > 3000) {
-        parsedHistoryByTag[key]["historyBadges"].push("history-medals-2750");
-      } else if (medalAvg > 2500) {
+      if (medalAvg >= 3000) {
+        parsedHistoryByTag[key]["historyBadges"].push("history-medals-3000");
+      } else if (medalAvg >= 2500) {
         parsedHistoryByTag[key]["historyBadges"].push("history-medals-2500");
       }
-      else if (medalAvg > 2000) {
-        parsedHistoryByTag[key]["historyBadges"].push("history-medals-2000");
+      else if (medalAvg >= 2000) {
+        parsedHistoryByTag[key]["historyBadges"].push("history-medals-2200");
       }
     }
     fs.writeFileSync('public/data/parsed_history.json', JSON.stringify(parsedHistoryByTag));
@@ -313,9 +313,6 @@ async function parseCurrentData() {
     }
     //Determine if member is on track to hit quota or cannot hit quota
     if (value["warData"]["fame"] < (wwDay === 0 ? 0 : (parsedData["medalQuota"] / 4) * wwDay)) {
-      badges.push("standing-warning");
-    }
-    else {
       const toQuota = parsedData["medalQuota"] - value["warData"]["fame"];
       const dut = value["warData"]["decksUsedToday"];
       var mePotential = 900 * (4 - wwDay);
@@ -332,8 +329,11 @@ async function parseCurrentData() {
           badges.push("standing-violation");
       }
       else {
-        badges.push("standing-good")
+        badges.push("standing-warning");
       }
+    }
+    else {
+      badges.push("standing-good");
     }
     //Trophy recognition
     if (value["trophies"] === 9000) {
