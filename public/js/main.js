@@ -27,7 +27,7 @@ async function updateActivityMap(activity) {
             const min = parseInt(timeStr.substring(11, 13)) / 60;
             return hr + min;
         }
-        var zArr = Array(97).fill().map((_, index) => 0);
+        var zArr = Array(96).fill().map((_, index) => 0);
         for (i=0; i<day.length; i+=1) {
             const t = parseTime(day[i]);
             zArr[Math.floor(t / 0.25)] += 1;
@@ -41,45 +41,58 @@ async function updateActivityMap(activity) {
         labels.push(i+":30");
         labels.push(i+":45");
     }
-    labels.push("24:00");
     document.getElementById("metadata-activity-map").innerHTML = "";
     var options = {
         plotOptions: {
             heatmap: {
+                enableShades: false,
+                useFillColorAsStroke: true,
                 colorScale: {
                     ranges: [
                         {
                             from: 0,
                             to: 0,
-                            color: '#212224',
+                            color: '#000000',
+                            name: "No Logins",
                         },
                         {
                             from: 1,
                             to: 2,
-                            color: '#462022',
+                            color: '#212224',
+                            name: "1-2 Logins",
                         },
                         {
                             from: 3,
                             to: 5,
-                            color: '#6B1F20',
+                            color: '#462022',
+                            name: "3-5 Logins",
                         },
                         {
                             from: 6,
                             to: 8,
-                            color: '#8F1D1E',
+                            color: '#6B1F20',
+                            name: "6-8 Logins",
                         },
                         {
                             from: 9,
                             to: 11,
-                            color: '#B41C1C',
+                            color: '#8F1D1E',
+                            name: "9-11 Logins",
                         },
                         {
                             from: 11,
+                            to: 13,
+                            color: '#B41C1C',
+                            name: "11-13 Logins",
+                        },
+                        {
+                            from: 14,
                             to: Infinity,
                             color: '#D91A1A',
+                            name: "14+ Logins",
                         },
                     ]
-                }
+                },
             }
         },
         series: [
@@ -117,7 +130,7 @@ async function updateActivityMap(activity) {
                 style: {
                     fontFamily: "'Courier New, Courier, monospace",
                     colors:  '#ffffff'
-                  },
+                },
             }
         },
         xaxis: {
@@ -126,14 +139,13 @@ async function updateActivityMap(activity) {
                 style: {
                     fontFamily: "'Courier New, Courier, monospace",
                     colors:  '#ffffff'
-                  },
+                },
             },
             tickAmount: 24,
 
         },
         chart: {
-            height: 275,
-            nodeBGColor: '#000',
+            height: 230,
             type: 'heatmap',
             toolbar: {
                 show: false,
@@ -148,6 +160,13 @@ async function updateActivityMap(activity) {
         },
         dataLabels: {
             enabled: false,
+        },
+        legend: {
+            fontFamily: 'Courier New, Courier, monospace',
+            labels: {
+                colors: "#ffffff"
+            },
+            floating: true,
         },
     };
     var chart = new ApexCharts(document.getElementById("metadata-activity-map"), options);
@@ -245,12 +264,12 @@ async function populateMemberList(data, history) {
                 return generateBadge(["fa-solid", "fa-fire-flame-simple"], "", "btn-outline-primary", "Averages over 12 Decks per week!");
             case "history-decks-16":
                 return generateBadge(["fa-solid", "fa-fire-flame-simple"], "", "btn-primary", "Averages 16 Decks per week!");
-            case "history-medals-2000":
-                return generateBadge(["fa-solid", "fa-khanda"], "#ff0000", "btn", "Averages over 2000 Medals per Week!");
+            case "history-medals-2200":
+                return generateBadge(["fa-solid", "fa-khanda"], "#ff0000", "btn", "Averages over 2200 Medals per Week!");
             case "history-medals-2500":
                 return generateBadge(["fa-solid", "fa-khanda"], "", "btn-outline-danger", "Averages over 2500 Medals per week!");
-            case "history-medals-2750":
-                return generateBadge(["fa-solid", "fa-khanda"], "", "btn-danger", "Averages over 2750 Medals per week!");
+            case "history-medals-3000":
+                return generateBadge(["fa-solid", "fa-khanda"], "", "btn-danger", "Averages over 3000 Medals per week!");
             case "ninek":
                 return generateBadge(["fa-solid", "fa-trophy"], "#ffe75c", "btn", "9000 Trophies!");
             case "cr-vet":
@@ -338,44 +357,107 @@ async function populateMemberList(data, history) {
         stacked.appendChild(createMedalBar(factors["meWeight"], factors["meTop"], member["participation"]["medals"], "text-bg-danger", "Weekly War Medals: "));
         stacked.appendChild(createMedalBar(factors["doWeight"], factors["doTop"], member["participation"]["donos"], "text-bg-success", "Weekly Donations: "));
         info.appendChild(stacked);
-    }
+    }   
 
     function setMidCard2Info(info, history) {
-        function createGraph(parent, dataPoints, title, dataLineColor, averageLineColor, min, max) {
+        function createGraph(parent, title, dataPoints_ME, dataPoints_DE, averageLineColor, lineColor_ME, lineColor_DE) {
             var g = document.createElement("div");
             parent.appendChild(g);
-            const average = dataPoints.reduce((sum, i) => {return sum + i}) / dataPoints.length;
-            const avgarr = Array(dataPoints.length).fill(0).map((_, i) => {return average;});
-            const labels = Array(dataPoints.length).fill().map((_, index) => `-${dataPoints.length-index} Wars`);
+            const average_ME = dataPoints_ME.reduce((sum, i) => {return sum + i}) / dataPoints_ME.length;
+            const avgarr_ME = Array(dataPoints_ME.length).fill(0).map((_, i) => {return average_ME;});
+            const average_DE = dataPoints_DE.reduce((sum, i) => {return sum + i}) / dataPoints_DE.length;
+            const avgarr_DE = Array(dataPoints_DE.length).fill(0).map((_, i) => {return average_DE;});
+            const labels = Array(dataPoints_ME.length).fill().map((_, index) => `-${dataPoints_ME.length-index} Wars`);
             var options = {
                 series: [
                     {
-                        name: 'Average',
-                        data: avgarr
+                        name: 'Average Decks',
+                        data: avgarr_DE
                     },
                     {
-                        name: title,
-                        data: dataPoints
+                        name: 'Decks Used',
+                        data: dataPoints_DE
+                    },
+                    {
+                        name: 'Average Medals',
+                        data: avgarr_ME
+                    },
+                    {
+                        name: 'Medals Gained',
+                        data: dataPoints_ME
                     },
                 ],
                 chart: {
-                    height: 200,
+                    height: 225,
                     type: 'line',
+                    stacked: false,
                     toolbar: {
                         show: false,
                     },           
                 },
-                yaxis: {
-                    decimalsInFloat: 0,
-                    min: min,
-                    max: max,
-                    labels: {
-                        style: {
-                            fontFamily: "'Courier New, Courier, monospace",
-                            colors:  '#ffffff'
-                          },
-                    }
-                },
+                yaxis: [
+                    {
+                        decimalsInFloat: 0,
+                        opposite: true,
+                        axisTicks: {
+                            show: true
+                        },
+                        axisBorder: {
+                            show: true,
+                            color: lineColor_DE
+                        },
+                        labels: {
+                            style: {
+                                fontFamily: "'Courier New, Courier, monospace",
+                                colors: "#ffffff"
+                            }
+                        },
+                        title: {
+                            text: "Decks",
+                            style: {
+                                fontFamily: "'Courier New, Courier, monospace",
+                                color: "#ffffff"
+                            }
+                        },
+                        min: 0,
+                        max: 16
+                    },
+                    {
+                        show: false,
+                        min: 0,
+                        max: 16
+                    },
+                    {
+                        decimalsInFloat: 0,
+                        axisTicks: {
+                            show: true
+                        },
+                        axisBorder: {
+                            show: true,
+                            color: lineColor_ME,
+                        },
+                        labels: {
+                            style: {
+                                fontFamily: "'Courier New, Courier, monospace",
+                                colors: "#ffffff"
+                            }
+                        },
+                        title: {
+                            text: "Medals",
+                            style: {
+                                fontFamily: "'Courier New, Courier, monospace",
+                                color: "#ffffff"
+                            }
+                        },
+                        min: 0,
+                        max: 3600
+                    },
+                    {
+                        show: false,
+                        min: 0,
+                        max: 3600
+                    },
+                ],
                 xaxis: {
                     categories: labels,
                     labels: {
@@ -385,12 +467,13 @@ async function populateMemberList(data, history) {
                           },
                     }
                 },
-                colors: [averageLineColor, dataLineColor],
+                colors: [averageLineColor, lineColor_DE, averageLineColor, lineColor_ME],
                 title: {
                     text: title,
+                    align: "center",
                     style: {
                         fontFamily: "'Courier New, Courier, monospace",
-                        color:  '#ffffff'
+                        color:  '#ffffff',
                       },
                 },
                 legend: {
@@ -408,8 +491,7 @@ async function populateMemberList(data, history) {
                 },
                 stroke: {
                     width: 4,
-                }
-                  
+                },                  
             };
             var chart = new ApexCharts(g, options);
             chart.render();
@@ -419,8 +501,7 @@ async function populateMemberList(data, history) {
         const medalGains = history["fameHistory"].slice().reverse();
         var graphs = document.createElement("div");
         info.appendChild(graphs);
-        createGraph(graphs, deckUsage, "Deck Usage", "#0070ff", "#ffffff", 0, 16);
-        createGraph(graphs, medalGains, "Medals Earned", "#ff0000", "#ffffff", 0, 3600);
+        createGraph(graphs, "War Statistics", medalGains, deckUsage, "#ffffff", "#ff0000","#0070ff");
         window.dispatchEvent(new Event("resize")); //weird ApexChart quirk workaround
     }
 
