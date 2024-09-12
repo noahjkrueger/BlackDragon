@@ -165,7 +165,7 @@ async function parseHistoricalData() {
       } else if (medalAvg >= 2500) {
         parsedHistoryByTag[key]["historyBadges"].push("history-medals-2500");
       }
-      else if (medalAvg >= 2000) {
+      else if (medalAvg >= 2200) {
         parsedHistoryByTag[key]["historyBadges"].push("history-medals-2200");
       }
     }

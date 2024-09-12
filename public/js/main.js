@@ -388,7 +388,7 @@ async function populateMemberList(data, history) {
                     },
                 ],
                 chart: {
-                    height: 225,
+                    height: 250,
                     type: 'line',
                     stacked: false,
                     toolbar: {
@@ -412,13 +412,6 @@ async function populateMemberList(data, history) {
                                 colors: "#ffffff"
                             }
                         },
-                        title: {
-                            text: "Decks",
-                            style: {
-                                fontFamily: "'Courier New, Courier, monospace",
-                                color: "#ffffff"
-                            }
-                        },
                         min: 0,
                         max: 16
                     },
@@ -440,13 +433,6 @@ async function populateMemberList(data, history) {
                             style: {
                                 fontFamily: "'Courier New, Courier, monospace",
                                 colors: "#ffffff"
-                            }
-                        },
-                        title: {
-                            text: "Medals",
-                            style: {
-                                fontFamily: "'Courier New, Courier, monospace",
-                                color: "#ffffff"
                             }
                         },
                         min: 0,
