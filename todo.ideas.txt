@@ -2,14 +2,11 @@
 BUGS
 ---------------------------------------------------------------------
 -deck/medal graphs: figure out nodata.
-
 --------------------------------------------------------------------
 FEATURES, ADJUSTMENTS, NOTES
 --------------------------------------------------------------------
--3D rendering of BD. Use threejs library to load file. Will be heavy on client side. probably have to impliment combined participation graphs first. seperate out average lines into another card row: avg donos, meals, decks.
-  -layer clan metadata in flexbox over the canvas. adjust rendering scene to shift to right on mobile, have MD on left. On large screen, just keep as row at bottom of canvas.
--Participation graphs per member - maybe combine the two graphs to make lighter. Need a way to query or store donation data week to week. maybe convert into stacked bar chart. Need to store dono data form w2w tho.
+-Better 3D model
+-historical donation data
 -Update Dragon Creed
--Make Discord invite better
 -Figure out better way to sync activity data. may be worth using a database rather than JSON. current proccess of ssh into render and manual pull is cumbersome and loses 5-10 minutes of activity data. not doing this reverts data on prod to what is on repo.
 
