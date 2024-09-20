@@ -12,79 +12,39 @@
         <script type="importmap">
             {
               "imports": {
-                "chartjs": "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.min.js",
                 "three": "https://cdn.jsdelivr.net/npm/three@v0.167.1/build/three.module.js",
                 "three/addons/": "https://cdn.jsdelivr.net/npm/three@v0.167.1/examples/jsm/"
               }
             }
           </script>
     </head>
-    <div class="toast-container position-fixed bottom-0 end-0">
-        <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="false">
-            <div class="toast-header">
-                <img src="img/dragon-logo-single.png" class="rounded me-2" style="width: 32px">
-                <strong class="me-auto"><a class="btn btn-light" href="https://discord.com/invite/SZzZuuFhVa" target="_blank"><i class="fa-brands fa-discord"></i> Join Our Discord!</a></strong>
-                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-            </div>
-        </div>
-    </div>
-    <!-- Modal -->
-    <!-- <div class="modal fade" id="dragonsCreed" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5"><i class="fa-solid fa-scroll"></i> The Dragon's Creed</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <body>
+        <div class="main-container">
+            <div class="main-landing">
+                <div id="3D-canvas" class="animation-canvas"></div>
+                <div class="metadata-clan">
+                    <div id="metadata-clan-tag"></div>
+                    <div id="metadata-clan-members"></div>
+                    <div id="metadata-clan-score"></div>
+                    <div id="metadata-clan-trophies"></div>
+                    <div id="metadata-clan-donations"></div>
+                    <!-- <div id="metadata-clan-description"></div> -->
+                    <a href="https://discord.com/invite/SZzZuuFhVa" target="_blank"><i class="fa-brands fa-discord"></i> Join Our Discord!</a>
                 </div>
-                <div class="modal-body">
-                    <div class="ratio custom-ratio">
-                        <iframe src="https://docs.google.com/document/d/e/2PACX-1vRdSWKnpL0OB7e4syQKjnEOXzthVafK45sCzoX55CHYPRqWTn-RNrfx1iro5q3OeE32oazqu4Oy8bPp/pub?embedded=true"></iframe>
+            </div>
+            <div class="main-content">
+                <div class="main-content-nav">
+                    <select id="data-ordering" class="form-select form-select-sm"></select>         
+                    <div id="metadata-data-time"></div>
+                </div>
+                <div class="metadata-activity-container">
+                    <div class="metadata-activity-map">                  
+                        <div id="metadata-activity-map"></div>
                     </div>
                 </div>
+                <div id="member-canvas" class="member-canvas"></div>
             </div>
         </div>
-    </div> -->
-    <body>
-        <div class="dragon-section-top">
-            <!-- Dragon logo -->
-            <div id="canvas"></div>
-            <img src="img/dragon-logo-banner.png">
-            <div class="metadata-clan">
-                <div id="metadata-clan-tag" class="metadata-clan-sm"></div>
-                <div id="metadata-clan-members" class="metadata-clan-sm"></div>
-                <div id="metadata-clan-score" class="metadata-clan-sm"></div>
-                <div id="metadata-clan-trophies" class="metadata-clan-sm"></div>
-                <div id="metadata-clan-donations" class="metadata-clan-sm"></div>
-                <div id="metadata-clan-description" class="metadata-clan-big"></div>
-                <!-- <div id="" class="metadata-clan-med">
-                    <a data-bs-toggle="modal" data-bs-target="#dragonsCreed"><i class="fa-solid fa-scroll"></i> The Dragon's Creed</a>
-                </div> -->
-            </div>
-            <div class="metadata-activity-container">
-                <div class="metadata-activity-map">                  
-                    <div id="metadata-activity-map"></div>
-                </div>
-            </div>
-            <div class="metadata-date-time">
-                <div id="metadata-data-time"></div>
-            </div>
-            <div class="order-button-wrapper">
-                <select id="data-ordering" class="form-select form-select-sm"></select>                 
-            </div>
-       </div>
-        <main class="dragon-section-content">
-            <div id="loading-spinner" class="d-flex justify-content-center spinner">
-                <div class="spinner-border text-danger" role="status">
-                    <span class="visually-hidden">Loading...</span>
-                </div>
-            </div>
-            <div id="member-canvas"></div>
-        </main>
-
-        <div class="dragon-section-bottom">
-            <!-- Dragon logo -->
-           <img src="img/dragon-logo-single.png">
-       </div>
         <!-- Scripts -->
         <!-- Bootstrap + Popper Script -->
         <script src="/js/bootstrap.bundle.min.js"></script>
@@ -94,7 +54,7 @@
         <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
         <!-- Custom Scripts -->
         <script src="/js/main.js"></script>
-        <!-- <script type="module" src="/js/animation.js"></script> -->
+        <script type="module" src="/js/animation.js"></script>
     </body>
     <footer>
         <div class="disclaimer">

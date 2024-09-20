@@ -57,39 +57,39 @@ async function updateActivityMap(activity) {
                         },
                         {
                             from: 1,
-                            to: 2,
+                            to: 4,
                             color: '#212224',
-                            name: "1-2 Logins",
+                            name: "1-4 Logins",
                         },
                         {
-                            from: 3,
-                            to: 5,
-                            color: '#462022',
-                            name: "3-5 Logins",
-                        },
-                        {
-                            from: 6,
+                            from: 5,
                             to: 8,
-                            color: '#6B1F20',
-                            name: "6-8 Logins",
+                            color: '#462022',
+                            name: "5-8 Logins",
                         },
                         {
                             from: 9,
-                            to: 11,
+                            to: 12,
+                            color: '#6B1F20',
+                            name: "9-12 Logins",
+                        },
+                        {
+                            from: 13,
+                            to: 15,
                             color: '#8F1D1E',
-                            name: "9-11 Logins",
+                            name: "13-15 Logins",
                         },
                         {
-                            from: 11,
-                            to: 13,
+                            from: 16,
+                            to: 19,
                             color: '#B41C1C',
-                            name: "11-13 Logins",
+                            name: "16-19 Logins",
                         },
                         {
-                            from: 14,
+                            from: 20,
                             to: Infinity,
                             color: '#D91A1A',
-                            name: "14+ Logins",
+                            name: "20+ Logins",
                         },
                     ]
                 },
@@ -145,7 +145,7 @@ async function updateActivityMap(activity) {
 
         },
         chart: {
-            height: 230,
+            height: 250,
             type: 'heatmap',
             toolbar: {
                 show: false,
@@ -167,6 +167,7 @@ async function updateActivityMap(activity) {
                 colors: "#ffffff"
             },
             floating: true,
+            position: "bottom"
         },
     };
     var chart = new ApexCharts(document.getElementById("metadata-activity-map"), options);
@@ -190,8 +191,8 @@ function updateMetadata(updateTime, clanTag, clanMembers, clanDescription, clanS
     //Update metadata-clan-members
     updateItem("metadata-clan-members", ["fa-solid", "fa-person"], "#00cff3", `${clanMembers}/50`);
 
-    //Update metadata-clan-description
-    updateItem("metadata-clan-description", ["fa-solid", "fa-comment"], "", clanDescription);
+    //Update metadata-clan-description 
+    // updateItem("metadata-clan-description", ["fa-solid", "fa-comment"], "", clanDescription);
 
     //Update metadata-clan-score
     updateItem("metadata-clan-score", ["fa-solid", "fa-trophy"], "#ffe75c", clanScore);
@@ -223,9 +224,6 @@ async function initOrderButton(orderingKeys) {
 
 
 async function populateMemberList(data, history) {
-    //Set spinner status to 'on' (visible)
-    setLoaderVisibility(true);
-
     //helper functions for orginization
     function generateBadge(iconClasses, iconColor, buttonVariant, toolTipText, toolTipDirection="top") {
         var badge = document.createElement("button");
@@ -360,9 +358,7 @@ async function populateMemberList(data, history) {
     }   
 
     function setMidCard2Info(info, history) {
-        function createGraph(parent, title, dataPoints_ME, dataPoints_DE, averageLineColor, lineColor_ME, lineColor_DE) {
-            var g = document.createElement("div");
-            parent.appendChild(g);
+        function createGraph(parent, dataPoints_ME, dataPoints_DE, averageLineColor, lineColor_ME, lineColor_DE) {
             const average_ME = dataPoints_ME.reduce((sum, i) => {return sum + i}) / dataPoints_ME.length;
             const avgarr_ME = Array(dataPoints_ME.length).fill(0).map((_, i) => {return average_ME;});
             const average_DE = dataPoints_DE.reduce((sum, i) => {return sum + i}) / dataPoints_DE.length;
@@ -388,12 +384,12 @@ async function populateMemberList(data, history) {
                     },
                 ],
                 chart: {
-                    height: 250,
+                    height: "100%",
                     type: 'line',
                     stacked: false,
                     toolbar: {
                         show: false,
-                    },           
+                    },
                 },
                 yaxis: [
                     {
@@ -447,21 +443,10 @@ async function populateMemberList(data, history) {
                 xaxis: {
                     categories: labels,
                     labels: {
-                        style: {
-                            fontFamily: "'Courier New, Courier, monospace",
-                            colors:  '#ffffff'
-                          },
+                        show: false,
                     }
                 },
                 colors: [averageLineColor, lineColor_DE, averageLineColor, lineColor_ME],
-                title: {
-                    text: title,
-                    align: "center",
-                    style: {
-                        fontFamily: "'Courier New, Courier, monospace",
-                        color:  '#ffffff',
-                      },
-                },
                 legend: {
                     show: false
                 },
@@ -479,7 +464,7 @@ async function populateMemberList(data, history) {
                     width: 4,
                 },                  
             };
-            var chart = new ApexCharts(g, options);
+            var chart = new ApexCharts(parent, options);
             chart.render();
         }
 
@@ -487,7 +472,7 @@ async function populateMemberList(data, history) {
         const medalGains = history["fameHistory"].slice().reverse();
         var graphs = document.createElement("div");
         info.appendChild(graphs);
-        createGraph(graphs, "War Statistics", medalGains, deckUsage, "#ffffff", "#ff0000","#0070ff");
+        createGraph(graphs, medalGains, deckUsage, "#ffffff", "#ff0000","#0070ff");
         window.dispatchEvent(new Event("resize")); //weird ApexChart quirk workaround
     }
 
@@ -509,7 +494,7 @@ async function populateMemberList(data, history) {
     for (const k of order) {
         const v = members[k];
         if (cardInRow === 0) {
-            cardInRow = 3; //how many cards per row
+            cardInRow = 2; //how many cards per row
             row = document.createElement("div");
             helper.appendClassList(row, ["member-row"]);
             memberCanvas.appendChild(row);
@@ -523,7 +508,7 @@ async function populateMemberList(data, history) {
         var cardMid2 = document.createElement("div");
         var cardBot = document.createElement("div");
 
-        helper.appendClassList(cardTop, ["card-header"]);
+        helper.appendClassList(cardTop, ["card-header",]);
         setTopCardInfo(cardTop, v["badges"][0], v["badges"][1], v["name"], v["tag"], v["trophies"]);
 
         helper.appendClassList(cardMid1, ["card-body"]);
@@ -546,33 +531,18 @@ async function populateMemberList(data, history) {
 
         card.appendChild(cardTop);
         card.appendChild(cardMid1);
-        card.appendChild(cardBot); // dont feel like renaming variables after I decided to reorder these
         card.appendChild(cardMid2);
+        card.appendChild(cardBot);
 
         row.appendChild(card);
     }
     memberCanvas.appendChild(row);
-    //Set spinner status to 'off' (invisible)
-    setLoaderVisibility(false);
-}
-
-function setLoaderVisibility(visible) {
-    var spinner = document.getElementById("loading-spinner");
-    if (visible && spinner.classList.contains("visually-hidden")) {
-        spinner.classList.remove("visually-hidden");
-    }
-    else if (!spinner.classList.contains("visually-hidden")) {
-        document.getElementById("loading-spinner").classList.add("visually-hidden");
-    }
 }
 
 var data = null;
 var historyData = null;
 var activityData = null;
 async function refreshData() {
-    //Set spinner status to 'on' (visible)
-    setLoaderVisibility(true);
-
     var dataTime = "";
     //Get most recent parsed data
     try {
@@ -616,13 +586,6 @@ async function refreshData() {
 
     //Update activity graph
     await updateActivityMap(activityData);
-
-    //Set spinner status to 'off' (invisible)
-    setLoaderVisibility(false);
-}
-
-
-//links popup
-bootstrap.Toast.getOrCreateInstance(document.getElementById('liveToast')).show();   
+} 
 
 refreshData();
