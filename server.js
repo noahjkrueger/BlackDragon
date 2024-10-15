@@ -118,7 +118,7 @@ async function updateActivityTracking(parsedData) {
   fs.writeFileSync('public/data/activity.json', JSON.stringify(activityData));
   process.stdout.write("Activity Data updated!\n");
   return activityData;
-}
+} 
 
 async function parseHistoricalData() {
   process.stdout.write("Updating 10 week historical data...\n");
