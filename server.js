@@ -25,6 +25,8 @@ spinUp();
 //Set up cronjobs
 var CronJob = require('cron').CronJob;
 
+var day = 0;
+
 async function fiveMinFunc() {
   const cdata = await parseCurrentData();
   await updateActivityTracking(cdata);
@@ -103,7 +105,8 @@ async function updateActivityTracking(parsedData) {
     const seen = v["lastSeen"];
     if (k in activityData["lastSeen"]) {
       if (activityData["lastSeen"][k] != seen) {
-        activityData[`day-${dayOfWeek}`].push(seen);
+        const t = parseInt(seen.substring(9, 11)) + parseInt(seen.substring(11, 13)) / 60;
+        activityData[`day-${dayOfWeek}`][Math.floor(t / 0.25)] += 1;
       }
     }
   }
