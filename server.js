@@ -17,7 +17,7 @@ app.listen(port, '0.0.0.0', () => {
 });
 
 async function spinUp() {
-  await fiveMinFunc();
+  await fifteenMinFunc();
   await weekFunc();
 }
 spinUp();
@@ -25,9 +25,7 @@ spinUp();
 //Set up cronjobs
 var CronJob = require('cron').CronJob;
 
-var day = 0;
-
-async function fiveMinFunc() {
+async function fifteenMinFunc() {
   const cdata = await parseCurrentData();
   await updateActivityTracking(cdata);
 }
@@ -36,7 +34,7 @@ async function weekFunc() {
   const hdata = await parseHistoricalData();
 }
 
-var fiveMinJob = new CronJob('*/5 * * * *', fiveMinFunc, null, true, "America/New_York");
+var fifteenMinJob = new CronJob('*/15 * * * *', fifteenMinFunc, null, true, "America/New_York");
 var weekJob = new CronJob('0 6 * * 1', weekFunc, null, true, "America/New_York");
 
 //API query funciton
@@ -100,13 +98,19 @@ async function updateActivityTracking(parsedData) {
   for(const [k, v] of Object.entries(parsedData["memberList"])) {
     updatedLastSeen[k] = v["lastSeen"];
   }
+  var reset = true;
   //update day of week activity
   for(const [k, v] of Object.entries(parsedData["memberList"])) {
     const seen = v["lastSeen"];
     if (k in activityData["lastSeen"]) {
       if (activityData["lastSeen"][k] != seen) {
         const t = parseInt(seen.substring(9, 11)) + parseInt(seen.substring(11, 13)) / 60;
-        activityData[`day-${dayOfWeek}`][Math.floor(t / 0.25)] += 1;
+        const ts = Math.floor(t / 0.25);
+        if (reset) {
+          activityData[`day-${dayOfWeek}`][ts] = 0;
+          reset = false;
+        }
+        activityData[`day-${dayOfWeek}`][ts] += 1;
       }
     }
   }
@@ -114,7 +118,7 @@ async function updateActivityTracking(parsedData) {
   fs.writeFileSync('public/data/activity.json', JSON.stringify(activityData));
   process.stdout.write("Activity Data updated!\n");
   return activityData;
-}
+} 
 
 async function parseHistoricalData() {
   process.stdout.write("Updating 10 week historical data...\n");
