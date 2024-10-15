@@ -21,19 +21,6 @@ var popoverList = [];
 var orderingSelector = "";
 
 async function updateActivityMap(activity) {
-    function zArray(day) {
-        function parseTime(timeStr) {
-            const hr = parseInt(timeStr.substring(9, 11));
-            const min = parseInt(timeStr.substring(11, 13)) / 60;
-            return hr + min;
-        }
-        var zArr = Array(96).fill().map((_, index) => 0);
-        for (i=0; i<day.length; i+=1) {
-            const t = parseTime(day[i]);
-            zArr[Math.floor(t / 0.25)] += 1;
-        }
-        return zArr;
-    }
     var labels = [];
     for (var i=0; i<24; i+=1) {
         labels.push(i+":00");
@@ -57,39 +44,39 @@ async function updateActivityMap(activity) {
                         },
                         {
                             from: 1,
-                            to: 5,
+                            to: 2,
                             color: '#212224',
-                            name: "1-5 Logins",
+                            name: "1-2 Logins",
                         },
                         {
-                            from: 6,
-                            to: 10,
+                            from: 3,
+                            to: 4,
                             color: '#462022',
-                            name: "6-10 Logins",
+                            name: "3-4 Logins",
+                        },
+                        {
+                            from: 5,
+                            to: 6,
+                            color: '#6B1F20',
+                            name: "5-6 Logins",
+                        },
+                        {
+                            from: 7,
+                            to: 8,
+                            color: '#8F1D1E',
+                            name: "7-8 Logins",
+                        },
+                        {
+                            from: 9,
+                            to: 10,
+                            color: '#B41C1C',
+                            name: "9-10 Logins",
                         },
                         {
                             from: 11,
-                            to: 15,
-                            color: '#6B1F20',
-                            name: "11-15 Logins",
-                        },
-                        {
-                            from: 16,
-                            to: 20,
-                            color: '#8F1D1E',
-                            name: "16-20 Logins",
-                        },
-                        {
-                            from: 21,
-                            to: 25,
-                            color: '#B41C1C',
-                            name: "21-25 Logins",
-                        },
-                        {
-                            from: 26,
                             to: Infinity,
                             color: '#D91A1A',
-                            name: "26+ Logins",
+                            name: "11+ Logins",
                         },
                     ]
                 },
@@ -98,31 +85,31 @@ async function updateActivityMap(activity) {
         series: [
             {
                 name: 'Sunday',
-                data: zArray(activity["day-0"])
+                data: activity["day-0"]
             },
             {
                 name: 'Monday',
-                data: zArray(activity["day-1"])
+                data: activity["day-1"]
             },
             {
                 name: 'Tuesday',
-                data: zArray(activity["day-2"])
+                data: activity["day-2"]
             },
             {
                 name: 'Wednesday',
-                data: zArray(activity["day-3"])
+                data: activity["day-3"]
             },
             {
                 name: 'Thursday',
-                data: zArray(activity["day-4"])
+                data: activity["day-4"]
             },
             {
                 name: 'Friday',
-                data: zArray(activity["day-5"])
+                data: activity["day-5"]
             },
             {
                 name: 'Saturday',
-                data: zArray(activity["day-6"])
+                data: activity["day-6"]
             },
         ],
         yaxis: {
