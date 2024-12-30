@@ -243,7 +243,7 @@ async function populateMemberList(data, history) {
                 return generateBadge(["fa-solid", "fa-circle-check"], "", "btn-outline-success", "Good Standing!", "right");
             case "standing-warning":
                 return generateBadge(["fa-solid", "fa-circle-exclamation"], "#ffbf00", "btn", "Not on track to hit medal quota.", "right");
-            case "tanding-violation":
+            case "standing-violation":
                 return generateBadge(["fa-solid", "fa-circle-exclamation"], "", "btn-danger", "Cannot meet medal quota.", "right");
             case "history-decks-12":
                 return generateBadge(["fa-solid", "fa-fire-flame-simple"], "", "btn-outline-primary", "Averages over 12 Decks per week!");
@@ -371,7 +371,7 @@ async function populateMemberList(data, history) {
                     },
                 ],
                 chart: {
-                    height: "100%",
+                    height: "225",
                     type: 'line',
                     stacked: false,
                     toolbar: {
@@ -457,9 +457,9 @@ async function populateMemberList(data, history) {
 
         const deckUsage = history["deckUseHistory"].slice().reverse();
         const medalGains = history["fameHistory"].slice().reverse();
-        var graphs = document.createElement("div");
-        info.appendChild(graphs);
-        createGraph(graphs, medalGains, deckUsage, "#ffffff", "#ff0000","#0070ff");
+        // var graphs = document.createElement("div");
+        createGraph(info, medalGains, deckUsage, "#ffffff", "#ff0000","#0070ff");
+        // info.appendChild(graphs);
         window.dispatchEvent(new Event("resize")); //weird ApexChart quirk workaround
     }
 
@@ -495,13 +495,19 @@ async function populateMemberList(data, history) {
         var cardMid2 = document.createElement("div");
         var cardBot = document.createElement("div");
 
+        card.appendChild(cardTop);
+        card.appendChild(cardMid1);
+        card.appendChild(cardMid2);
+        card.appendChild(cardBot); 
+        row.appendChild(card);
+
         helper.appendClassList(cardTop, ["card-header",]);
         setTopCardInfo(cardTop, v["badges"][0], v["badges"][1], v["name"], v["tag"], v["trophies"]);
 
         helper.appendClassList(cardMid1, ["card-body"]);
         setMidCard1Info(cardMid1, v, data["partFactors"], data["weekWarDay"]);
 
-        helper.appendClassList(cardMid2, ["card-body", "graphs-wrapper"]);
+        helper.appendClassList(cardMid2, ["card-body",]);
         if (historyData[k]) {
             setMidCard2Info(cardMid2, historyData[k]);
         }
@@ -514,14 +520,7 @@ async function populateMemberList(data, history) {
         try {
             historyBadges = history[v["tag"]]["historyBadges"];
         } catch (e) {};
-        setBotCardInfo(cardBot, historyBadges.concat(v["badges"].splice(2)));
-
-        card.appendChild(cardTop);
-        card.appendChild(cardMid1);
-        card.appendChild(cardMid2);
-        card.appendChild(cardBot);
-
-        row.appendChild(card);
+        setBotCardInfo(cardBot, historyBadges.concat(v["badges"].splice(2))); 
     }
     memberCanvas.appendChild(row);
 }
