@@ -3,6 +3,15 @@
     height: 100%;
 }
 
+
+.card-bottom {
+    padding-bottom: 0;
+}
+
+.card-footer {
+    padding-top: 0;
+}
+
 .card-footer button {
     margin-right: 0.2vw;
 }
