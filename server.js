@@ -16,11 +16,11 @@ app.listen(port, '0.0.0.0', () => {
     process.stdout.write(`Listening on port ${port}!\n`)
 });
 
-async function spinUp() {
-  await fifteenMinFunc();
-  await weekFunc();
-}
-spinUp();
+// async function spinUp() {
+//   await fifteenMinFunc();
+//   await weekFunc();
+// }
+// spinUp();
 
 //Set up cronjobs
 var CronJob = require('cron').CronJob;
