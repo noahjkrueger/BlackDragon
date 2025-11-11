@@ -571,7 +571,7 @@ async function refreshData() {
     await populateMemberList(data, historyData);
 
     //Update activity graph
-    await updateActivityMap(activityData);
+    //await updateActivityMap(activityData);
 } 
 
 refreshData();
